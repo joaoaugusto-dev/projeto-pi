@@ -1,0 +1,20 @@
+{
+  "name": "interfacepi",
+  "version": "0.0.1",
+  "description": "Interface Web para o projeto de Pi - Iluminação e Climatização automática",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon"
+  },
+  "author": "João Augusto de Freitas",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "mysql2": "^3.14.0",
+    "nodemon": "^3.1.9",
+    "sequelize": "^6.37.7"
+  }
+}
