@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon"
+    "start": "nodemon",
+    "deploy": "git add . && git commit -m 'Atualizando o projeto' && git push origin main"
   },
   "author": "João Augusto de Freitas",
   "license": "ISC",
