@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const routes = require('./routes');
 const conn = require('./database/conexao');
+const createTables = require('./tableCreation');
 
 const app = express();
 
@@ -13,8 +14,9 @@ app.set('view engine', 'ejs');
 
 app.use('/', routes);
 
-conn.authenticate().then(() => {
+conn.authenticate().then(async () => {
     console.log('Banco conectado!');
+    await createTables();
 }).catch((erro) => {
     console.log(erro);
 });

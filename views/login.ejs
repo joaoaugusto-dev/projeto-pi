@@ -1,0 +1,60 @@
+<%- include('partials/header.ejs') %>
+<%- include('partials/menu.ejs') %>
+
+
+<body>
+
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="logorModalLabel">Erro de Login</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="errorMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="d-flex justify-content-center">
+    <div style="width: 85%; max-width: 450px;">
+      <form id="login-form" method="post" action="/login">
+        <div class="container-sm" style="margin-top: 5%;">
+          <div style="display: flex; justify-content: space-between;" class="card">
+            <div class="card-body" style="box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px; border-radius: 4px;">
+              <div class="mb-3">
+                <div class="text-start mb-3">
+                  <label for="exampleInputEmail1" class="form-label label-cadastro-login">E-mail:</label>
+                  <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
+                         name="email" style="background-color: rgba(0, 0, 0, 0.13); width: 100%;" required>
+                  <div id="emailHelp" class="form-text">Aviso: Nunca compartilhe seus dados de login!</div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="exampleInputPassword1" class="form-label label-cadastro-login">Senha:</label>
+                <div style="display: flex; align-items: center; position: relative;">
+                    <input type="password" class="form-control" id="exampleInputPassword1" name="senha"
+                           style="background-color: rgba(0, 0, 0, 0.13); width: 100%;" required>
+                    <img src="../images/eye-slash.svg" id="togglePassword" alt="Mostrar Senha" 
+                         style="cursor: pointer; position: absolute; right: 10px;">
+                </div>
+            </div>
+            
+                <a href="/cadastro">Não tem uma conta? Clique Aqui!</a>
+            </div><br>
+              <button type="submit" class="btn btn-success"
+                style="width: 100%; font-size: 18px; color: #ffff; font-family: sans-serif; font-weight: bolder;">ENTRAR</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <%- include('partials/footer.ejs') %>
+  <%- include('./partials/vlibras.ejs') %>
+</body>
