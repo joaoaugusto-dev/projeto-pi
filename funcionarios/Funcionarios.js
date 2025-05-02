@@ -1,33 +1,22 @@
 const sequelize = require('sequelize');
-const { connUI } = require('../database/conexao');
+const conn = require('../database/conexao');
 
-const Accounts = connUI.define('accounts', {
+const Funcionarios = conn.define('funcionarios', {
     id: {
         type: sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true
+    },
+    matricula: {
+        type: sequelize.INTEGER,
+        allowNull: false,
+        unique: true
     },
     nome: {
         type: sequelize.STRING,
         allowNull: false
     },
     sobrenome: {
-        type: sequelize.STRING,
-        allowNull: false
-    },
-    nasc: {
-        type: sequelize.STRING,
-        allowNull: false
-    },
-    cpf: {
-        type: sequelize.STRING,
-        allowNull: false
-    },
-    telefone: {
-        type: sequelize.STRING,
-        allowNull: false
-    },
-    email: {
         type: sequelize.STRING,
         allowNull: false
     },
@@ -38,7 +27,19 @@ const Accounts = connUI.define('accounts', {
     foto: {
         type: sequelize.STRING,
         allowNull: true
-    }
+    },
+    temp_preferida: {
+        type: sequelize.FLOAT,
+        allowNull: true
+    },
+    lumi_preferida: {
+        type: sequelize.INTEGER,
+        allowNull: true
+    },
+    tag_nfc: {
+        type: sequelize.STRING,
+        allowNull: true
+    },
 });
 
-module.exports = Accounts;
+module.exports = Funcionarios;

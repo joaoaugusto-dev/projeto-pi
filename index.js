@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const routes = require('./routes');
-const { connUI, connESP32 } = require('./database/conexao');
+const conn = require('./database/conexao');
 const createTables = require('./tableCreation');
 
 const app = express();
@@ -14,9 +14,9 @@ app.set('view engine', 'ejs');
 
 app.use('/', routes);
 
-Promise.all([connUI.authenticate(), connESP32.authenticate()])
+conn.authenticate()
     .then(async () => {
-        console.log('Bancos conectados!');
+        console.log('Banco conectado!');
         await createTables();
     })
     .catch((erro) => {

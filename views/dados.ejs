@@ -11,8 +11,8 @@
                     </div>
                     <div class="card-body">
                         <div class="text-center mb-4">
-                            <% if (account.foto) { %>
-                                <img src="/uploads/<%= account.foto %>" alt="Foto de perfil" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                            <% if (funcionario.foto) { %>
+                                <img src="/uploads/<%= funcionario.foto %>" alt="Foto de perfil" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
                             <% } else { %>
                                 <img src="/images/perfil-default.png" alt="Foto de perfil padrão" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
                             <% } %>
@@ -20,27 +20,27 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <strong>Nome:</strong>
-                                <p><%= account.nome %> <%= account.sobrenome %></p>
+                                <p><%= funcionario.nome %> <%= funcionario.sobrenome %></p>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <strong>Email:</strong>
-                                <p><%= account.email %></p>
+                                <p><%= funcionario.email %></p>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <strong>CPF:</strong>
-                                <p><%= account.cpf %></p>
+                                <p><%= funcionario.cpf %></p>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <strong>Data de Nascimento:</strong>
-                                <p><%= account.nasc %></p>
+                                <p><%= funcionario.nasc %></p>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <strong>Telefone:</strong>
-                                <p><%= account.telefone %></p>
+                                <p><%= funcionario.telefone %></p>
                             </div>
                         </div>
                     </div>

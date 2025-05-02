@@ -1,7 +1,7 @@
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const Accounts = require('../accounts/Accounts');
+const Funcionarios = require('../funcionarios/Funcionarios');
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -56,7 +56,7 @@ const register = async (req, res) => {
     // Continua com o processo de registro se a senha for válida
     try {
         console.log('Verificando se o e-mail já está cadastrado');
-        const userExists = await Accounts.findOne({ where: { email: f_email } });
+        const userExists = await Funcionarios.findOne({ where: { email: f_email } });
         if (userExists) {
             console.log('Erro: E-mail já cadastrado');
             if (filePath) fs.unlinkSync(filePath);
@@ -64,7 +64,7 @@ const register = async (req, res) => {
         }
 
         console.log('Verificando se o CPF já está cadastrado');
-        const cpfExists = await Accounts.findOne({ where: { cpf: f_cpf } });
+        const cpfExists = await Funcionarios.findOne({ where: { cpf: f_cpf } });
         if (cpfExists) {
             console.log('Erro: CPF já cadastrado');
             if (filePath) fs.unlinkSync(filePath);
@@ -75,7 +75,7 @@ const register = async (req, res) => {
         const hashedPassword = bcrypt.hashSync(f_senha, 10);
 
         console.log('Criando novo usuário no banco de dados');
-        const newUser = await Accounts.create({
+        const newUser = await Funcionarios.create({
             nome: f_nome,
             sobrenome: f_sobrenome,
             nasc: f_nasc,
@@ -105,7 +105,7 @@ const login = async (req, res) => {
     const { email, senha } = req.body;
 
     try {
-        const user = await Accounts.findOne({ where: { email: email } });
+        const user = await Funcionarios.findOne({ where: { email: email } });
 
         if (!user || !bcrypt.compareSync(senha, user.senha)) {
             return res.status(400).json({ message: 'Email ou Senha incorreta. Tente novamente!' });
