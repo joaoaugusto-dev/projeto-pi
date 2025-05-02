@@ -2,20 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('./auth/auth');
 const Account = require('./accounts/Accounts');
+const esp32Routes = require('./esp32/esp32Controller');
 const jwt = require('jsonwebtoken');
-
-router.use((req, res, next) => {
-    const token = req.cookies ? req.cookies.token : null;
-    if (token) {
-        try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.user = decoded;
-        } catch (err) {
-            res.clearCookie('token');
-        }
-    }
-    next();
-});
 
 router.get('/', async (req, res) => {
     const token = req.cookies.token;
@@ -24,7 +12,7 @@ router.get('/', async (req, res) => {
 
     if (token) {
         try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const decoded = jwt.verify(token, process.env.TokenJWT);
             user = decoded;
             account = await Account.findByPk(decoded.id);
         } catch (err) {
@@ -52,5 +40,8 @@ router.get('/dados', authenticateToken, async (req, res) => {
         res.redirect('/');
     }
 });
+
+// Rotas do ESP32
+router.use('/esp32', esp32Routes);
 
 module.exports = router;

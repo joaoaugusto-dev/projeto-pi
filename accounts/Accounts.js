@@ -1,7 +1,7 @@
 const sequelize = require('sequelize');
-const conn = require('../database/conexao');
+const { connUI } = require('../database/conexao');
 
-const Accounts = conn.define('accounts', {
+const Accounts = connUI.define('accounts', {
     id: {
         type: sequelize.INTEGER,
         autoIncrement: true,
