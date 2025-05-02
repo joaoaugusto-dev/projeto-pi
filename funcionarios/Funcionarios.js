@@ -30,16 +30,19 @@ const Funcionarios = conn.define('funcionarios', {
     },
     temp_preferida: {
         type: sequelize.FLOAT,
-        allowNull: true
+        allowNull: true,
+        defaultValue: 24.0
     },
     lumi_preferida: {
         type: sequelize.INTEGER,
-        allowNull: true
+        allowNull: true,
+        defaultValue: 500
     },
     tag_nfc: {
         type: sequelize.STRING,
-        allowNull: true
-    },
+        allowNull: true,
+        unique: true
+    }
 });
 
 module.exports = Funcionarios;

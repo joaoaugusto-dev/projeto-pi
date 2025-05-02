@@ -1,0 +1,222 @@
+<%- include('partials/header.ejs') %>
+<%- include('partials/menu.ejs') %>
+
+<body>
+    <!-- Modal de Cadastro de Tag -->
+    <div class="modal fade" id="tagModal" tabindex="-1" aria-labelledby="tagModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tagModalLabel">Cadastro de Tag NFC</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="tagStatus">
+                        <div id="statusIcon" class="mb-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Carregando...</span>
+                            </div>
+                        </div>
+                        <p class="mb-2" id="tagMessage">Conectando ao ESP32...</p>
+                        <p class="text-muted small" id="tagDetails"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">Minhas Preferências</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="preferencesForm">
+                            <div class="mb-4">
+                                <label for="temp_preferida" class="form-label">Temperatura Preferida (°C)</label>
+                                <input type="range" class="form-range" id="temp_preferida" name="temp_preferida" 
+                                    min="16" max="30" step="0.5" value="<%= funcionario.temp_preferida %>">
+                                <div class="text-center">
+                                    <span id="temp_value"><%= funcionario.temp_preferida %>°C</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="lumi_preferida" class="form-label">Luminosidade Preferida (lux)</label>
+                                <input type="range" class="form-range" id="lumi_preferida" name="lumi_preferida"
+                                    min="100" max="1000" step="50" value="<%= funcionario.lumi_preferida %>">
+                                <div class="text-center">
+                                    <span id="lumi_value"><%= funcionario.lumi_preferida %> lux</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="tag_nfc" class="form-label">Tag NFC</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="tag_nfc" name="tag_nfc"
+                                        value="<%= funcionario.tag_nfc || '' %>" readonly>
+                                    <button type="button" class="btn btn-primary" id="novaTagBtn">Nova Tag</button>
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary">Salvar Preferências</button>
+                            </div>
+                            <div id="errorMessage" class="text-danger mt-3"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('temp_preferida').addEventListener('input', function() {
+            document.getElementById('temp_value').textContent = this.value + '°C';
+        });
+
+        document.getElementById('lumi_preferida').addEventListener('input', function() {
+            document.getElementById('lumi_value').textContent = this.value + ' lux';
+        });
+
+        document.getElementById('preferencesForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const temperatura = document.getElementById('temp_preferida').value;
+            const luminosidade = document.getElementById('lumi_preferida').value;
+            const tagNFC = document.getElementById('tag_nfc').value;
+
+            try {
+                const response = await fetch('/preferencias/atualizar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        temp_preferida: temperatura,
+                        lumi_preferida: luminosidade,
+                        tag_nfc: tagNFC
+                    })
+                });
+
+                if (response.ok) {
+                    window.location.href = '/dados';
+                } else {
+                    const data = await response.json();
+                    document.getElementById('errorMessage').textContent = data.message || 'Erro ao atualizar preferências';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('errorMessage').textContent = 'Erro ao atualizar preferências';
+            }
+        });
+
+        let tagModal = null;
+        let aguardandoTag = false;
+        let modoRegistro = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            tagModal = new bootstrap.Modal(document.getElementById('tagModal'));
+        });
+
+        document.getElementById('novaTagBtn').addEventListener('click', async function() {
+            try {
+                tagModal.show();
+                document.getElementById('tagMessage').textContent = 'Conectando ao ESP32...';
+                document.getElementById('tagDetails').textContent = '';
+                document.getElementById('statusIcon').innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div>';
+
+                const response = await fetch(`/esp32/iniciar-cadastro-tag/<%= funcionario.matricula %>`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    aguardandoTag = true;
+                    modoRegistro = false;
+                    document.getElementById('tagMessage').textContent = 'ESP32 conectado! Iniciando modo de registro...';
+                    document.getElementById('tagDetails').textContent = 'Matrícula: <%= funcionario.matricula %>';
+                    document.getElementById('statusIcon').innerHTML = '<i class="bi bi-broadcast text-success" style="font-size: 2rem;"></i>';
+                    iniciarVerificacaoTag();
+                } else {
+                    const data = await response.json();
+                    document.getElementById('tagMessage').textContent = data.message || 'Erro ao conectar com ESP32';
+                    document.getElementById('statusIcon').innerHTML = '<i class="bi bi-x-circle text-danger" style="font-size: 2rem;"></i>';
+                    aguardandoTag = false;
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('tagMessage').textContent = 'Erro ao conectar com ESP32';
+                document.getElementById('statusIcon').innerHTML = '<i class="bi bi-x-circle text-danger" style="font-size: 2rem;"></i>';
+                aguardandoTag = false;
+            }
+        });
+
+        async function verificarNovaTag() {
+            if (!aguardandoTag) return;
+
+            try {
+                // Primeiro verifica se o ESP está em modo de cadastro
+                const responseEsp = await fetch('/esp32/tag-status/pendente');
+                const dataEsp = await responseEsp.json();
+
+                if (dataEsp.status === 'aguardando' && !modoRegistro) {
+                    modoRegistro = true;
+                    document.getElementById('tagMessage').textContent = 'Aproxime sua tag do leitor...';
+                    document.getElementById('statusIcon').innerHTML = '<i class="bi bi-broadcast text-primary" style="font-size: 2rem;"></i>';
+                    return;
+                }
+
+                // Só verifica o status da matrícula se já estiver em modo de registro
+                if (modoRegistro) {
+                    const response = await fetch(`/esp32/tag-status/<%= funcionario.matricula %>`);
+                    const data = await response.json();
+
+                    if (data.status === 'concluido' && data.tag_nfc) {
+                        document.getElementById('statusIcon').innerHTML = '<i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>';
+                        document.getElementById('tagMessage').textContent = 'Tag cadastrada com sucesso!';
+                        document.getElementById('tag_nfc').value = data.tag_nfc;
+                        aguardandoTag = false;
+                        modoRegistro = false;
+                        setTimeout(() => {
+                            tagModal.hide();
+                            window.location.reload();
+                        }, 1500);
+                    }
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                aguardandoTag = false;
+                modoRegistro = false;
+                document.getElementById('statusIcon').innerHTML = '<i class="bi bi-x-circle text-danger" style="font-size: 2rem;"></i>';
+                document.getElementById('tagMessage').textContent = 'Erro ao verificar status da tag';
+                setTimeout(() => tagModal.hide(), 1500);
+            }
+        }
+
+        function iniciarVerificacaoTag() {
+            verificarNovaTag(); // Verifica imediatamente
+            const intervalo = setInterval(() => {
+                if (!aguardandoTag) {
+                    clearInterval(intervalo);
+                    return;
+                }
+                verificarNovaTag();
+            }, 2000);
+
+            // Fecha o modal após 30 segundos se não houver resposta
+            setTimeout(() => {
+                if (aguardandoTag) {
+                    aguardandoTag = false;
+                    document.getElementById('tagMessage').textContent = 'Tempo limite excedido';
+                    document.getElementById('statusIcon').innerHTML = '<i class="bi bi-x-circle text-warning" style="font-size: 2rem;"></i>';
+                    setTimeout(() => tagModal.hide(), 1500);
+                }
+            }, 30000);
+        }
+    </script>
+
+    <%- include('partials/footer.ejs') %>
+    <%- include('./partials/vlibras.ejs') %>
+</body>

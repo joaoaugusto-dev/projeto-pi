@@ -4,21 +4,24 @@ const { authenticateToken } = require('./auth/auth');
 const Funcionario = require('./funcionarios/Funcionarios');
 const esp32Routes = require('./esp32/esp32Controller');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+
+router.use(cookieParser());
 
 router.get('/', async (req, res) => {
-    //const token = req.cookies.token;
+    const token = req.cookies.token;
     let user = null;
     let funcionario = null;
 
-    /*if (token) {
+    if (token) {
         try {
-            const decoded = jwt.verify(token, process.env.TokenJWT);
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
             user = decoded;
             funcionario = await Funcionario.findByPk(decoded.id);
         } catch (err) {
             console.error(err);
         }
-    }*/
+    }
 
     res.render('index', { user, funcionario });
 });
@@ -33,11 +36,49 @@ router.get('/entrar', (req, res) => {
 
 router.get('/dados', authenticateToken, async (req, res) => {
     try {
+        console.log('ID do usuário:', req.user.id);
         const funcionario = await Funcionario.findByPk(req.user.id);
-        res.render('dados', { user: req.user, funcionario });
+        
+        if (!funcionario) {
+            console.log('Funcionário não encontrado');
+            return res.redirect('/');
+        }
+        
+        console.log('Funcionário encontrado:', funcionario.nome);
+        res.render('dados', { 
+            user: req.user, 
+            funcionario 
+        });
+    } catch (err) {
+        console.error('Erro ao carregar dados:', err);
+        res.redirect('/');
+    }
+});
+
+router.get('/preferencias', authenticateToken, async (req, res) => {
+    try {
+        const funcionario = await Funcionario.findByPk(req.user.id);
+        res.render('preferencias', { user: req.user, funcionario });
     } catch (err) {
         console.error(err);
         res.redirect('/');
+    }
+});
+
+router.post('/preferencias/atualizar', authenticateToken, async (req, res) => {
+    try {
+        const { temp_preferida, lumi_preferida, tag_nfc } = req.body;
+        await Funcionario.update({
+            temp_preferida,
+            lumi_preferida,
+            tag_nfc
+        }, {
+            where: { id: req.user.id }
+        });
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Erro ao atualizar preferências' });
     }
 });
 

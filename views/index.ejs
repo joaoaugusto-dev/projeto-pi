@@ -2,9 +2,71 @@
 <%- include('partials/menu.ejs') %>
 
 <body>
+    <div class="container mt-5">
+        <% if (!user) { %>
+            <div class="row justify-content-center">
+                <div class="col-md-8 text-center">
+                    <h1>Bem-vindo ao Sistema de Automação</h1>
+                    <p class="mt-4">Por favor, faça login ou cadastre-se para acessar o sistema.</p>
+                    <div class="mt-4">
+                        <a href="/entrar" class="btn btn-primary me-3">Login</a>
+                        <a href="/cadastro" class="btn btn-success">Cadastro</a>
+                    </div>
+                </div>
+            </div>
+        <% } else { %>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <% if (funcionario.foto) { %>
+                                <img src="/uploads/<%= funcionario.foto %>" alt="Foto de perfil" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                            <% } else { %>
+                                <img src="/images/perfil-default.png" alt="Foto de perfil padrão" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                            <% } %>
+                            <h4><%= funcionario.nome %> <%= funcionario.sobrenome %></h4>
+                            <p class="text-muted">Matrícula: <%= funcionario.matricula %></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>Preferências de Ambiente</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Temperatura Preferida</h6>
+                                    <p class="display-4"><%= funcionario.temp_preferida %>°C</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Luminosidade Preferida</h6>
+                                    <p class="display-4"><%= funcionario.lumi_preferida %> lux</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-    <h1>Hello World</h1>
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Tag NFC</h5>
+                        </div>
+                        <div class="card-body">
+                            <% if (funcionario.tag_nfc) { %>
+                                <p>Tag NFC vinculada: <%= funcionario.tag_nfc %></p>
+                            <% } else { %>
+                                <p>Nenhuma tag NFC vinculada</p>
+                            <% } %>
+                            <a href="/preferencias" class="btn btn-primary">Gerenciar Preferências</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
 
-<%- include('partials/footer.ejs') %>
-<%- include('./partials/vlibras.ejs') %>
+    <%- include('partials/footer.ejs') %>
+    <%- include('./partials/vlibras.ejs') %>
 </body>

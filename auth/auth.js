@@ -27,14 +27,17 @@ function obterProximoNumeroSequencial() {
     return maiorNumero + 1;
 }
 
+async function gerarMatricula() {
+    const ultimoFuncionario = await Funcionarios.findOne({
+        order: [['matricula', 'DESC']]
+    });
+    return ultimoFuncionario ? ultimoFuncionario.matricula + 1 : 1000;
+}
+
 const register = async (req, res) => {
-    console.log('Início do processo de registro');
-    let { f_nome, f_sobrenome, f_nasc, f_cpf, f_telefone, f_email, f_senha, confirmasenha } = req.body;
-    console.log('Dados recebidos:', req.body);
-    
+    let { matricula, f_nome, f_sobrenome, f_senha, confirmasenha } = req.body;
     let file = req.file ? req.file.filename : null;
     const filePath = req.file ? path.join(__dirname, '..', 'public', 'uploads', file) : null;
-    console.log('Arquivo de foto recebido:', file);
 
     // Validação das regras de senha
     const passwordValidation = {
@@ -44,31 +47,20 @@ const register = async (req, res) => {
         passwordsMatch: f_senha === confirmasenha,
     };
 
-    // Se alguma das regras não for cumprida, retorna um erro
-    if (!passwordValidation.minLength || !passwordValidation.hasUpperCase || !passwordValidation.hasSymbol || !passwordValidation.passwordsMatch) {
-        console.log('Erro: A senha não cumpre os requisitos');
+    if (!passwordValidation.minLength || !passwordValidation.hasUpperCase || 
+        !passwordValidation.hasSymbol || !passwordValidation.passwordsMatch) {
         if (filePath) fs.unlinkSync(filePath);
         return res.status(400).json({
             message: 'Erro na senha. A senha deve cumprir os requisitos mínimos.',
         });
     }
 
-    // Continua com o processo de registro se a senha for válida
     try {
-        console.log('Verificando se o e-mail já está cadastrado');
-        const userExists = await Funcionarios.findOne({ where: { email: f_email } });
-        if (userExists) {
-            console.log('Erro: E-mail já cadastrado');
+        console.log('Verificando se a matrícula já está cadastrada');
+        const matriculaExists = await Funcionarios.findOne({ where: { matricula: matricula } });
+        if (matriculaExists) {
             if (filePath) fs.unlinkSync(filePath);
-            return res.status(400).json({ message: 'Erro no e-mail. \nEste e-mail já foi cadastrado.' });
-        }
-
-        console.log('Verificando se o CPF já está cadastrado');
-        const cpfExists = await Funcionarios.findOne({ where: { cpf: f_cpf } });
-        if (cpfExists) {
-            console.log('Erro: CPF já cadastrado');
-            if (filePath) fs.unlinkSync(filePath);
-            return res.status(400).json({ message: 'Erro no CPF. \nEste CPF já foi cadastrado.' });
+            return res.status(400).json({ message: 'Esta matrícula já está cadastrada.' });
         }
 
         console.log('Gerando hash da senha');
@@ -76,14 +68,11 @@ const register = async (req, res) => {
 
         console.log('Criando novo usuário no banco de dados');
         const newUser = await Funcionarios.create({
+            matricula: matricula,
             nome: f_nome,
             sobrenome: f_sobrenome,
-            nasc: f_nasc,
-            cpf: f_cpf,
-            telefone: f_telefone,
-            email: f_email,
             senha: hashedPassword,
-            foto: file,
+            foto: file
         });
 
         console.log('Gerando token JWT para o novo usuário');
@@ -92,27 +81,26 @@ const register = async (req, res) => {
         console.log('Definindo cookie do token');
         res.cookie('token', token, { httpOnly: true });
 
-        console.log('Usuário registrado com sucesso, redirecionando para a página inicial');
-        return res.redirect('/');
+        console.log('Usuário registrado com sucesso');
+        return res.status(200).json({ success: true, message: 'Cadastro realizado com sucesso!' });
     } catch (err) {
         console.error('Erro durante o processo de registro:', err);
         if (filePath) fs.unlinkSync(filePath);
-        return res.status(500).json({ message: 'Erro no servidor' });
+        return res.status(500).json({ success: false, message: 'Erro no servidor' });
     }
 };
 
 const login = async (req, res) => {
-    const { email, senha } = req.body;
+    const { matricula, senha } = req.body;
 
     try {
-        const user = await Funcionarios.findOne({ where: { email: email } });
+        const user = await Funcionarios.findOne({ where: { matricula: matricula } });
 
         if (!user || !bcrypt.compareSync(senha, user.senha)) {
-            return res.status(400).json({ message: 'Email ou Senha incorreta. Tente novamente!' });
+            return res.status(400).json({ message: 'Matrícula ou Senha incorreta. Tente novamente!' });
         }
 
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
-
         res.cookie('token', token, { httpOnly: true });
         return res.json({ message: 'Login bem-sucedido!' });
     } catch (err) {

@@ -1,200 +1,117 @@
-<%- include('./partials/header.ejs') %>
+<%- include('partials/header.ejs') %>
+<%- include('partials/menu.ejs') %>
 
 <body>
-    <%- include('./partials/menu.ejs')%>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header text-center">
+            <h2>Cadastro de Funcionário</h2>
+          </div>
+          <div class="card-body">
+            <form id="registerForm" enctype="multipart/form-data">
+              <div class="mb-3">
+                <label for="matricula" class="form-label">Matrícula*</label>
+                <input type="number" class="form-control" id="matricula" name="matricula" required>
+              </div>
 
-    <!-- Modal de Erro -->
-    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="errorModalLabel">Erro no Cadastro</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <div class="mb-3">
+                <label for="f_nome" class="form-label">Nome*</label>
+                <input type="text" class="form-control" id="f_nome" name="f_nome" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="f_sobrenome" class="form-label">Sobrenome*</label>
+                <input type="text" class="form-control" id="f_sobrenome" name="f_sobrenome" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="f_senha" class="form-label">Senha*</label>
+                <input type="password" class="form-control" id="f_senha" name="f_senha" required>
+                <div class="form-text">
+                  A senha deve conter:
+                  <ul>
+                    <li id="minLength">Mínimo de 8 caracteres</li>
+                    <li id="hasUpperCase">Pelo menos 1 letra maiúscula</li>
+                    <li id="hasSymbol">Pelo menos 1 caractere especial</li>
+                  </ul>
                 </div>
-                <div class="modal-body">
-                    <p id="errorMessage"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                </div>
-            </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="confirmasenha" class="form-label">Confirmar Senha*</label>
+                <input type="password" class="form-control" id="confirmasenha" name="confirmasenha" required>
+                <div id="passwordMatch" class="form-text"></div>
+              </div>
+
+              <div class="mb-3">
+                <label for="file" class="form-label">Foto de Perfil</label>
+                <input type="file" class="form-control" id="file" name="file" accept="image/*">
+              </div>
+
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Cadastrar</button>
+              </div>
+              <div id="errorMessage" class="text-danger mt-3"></div>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <div class="d-flex justify-content-center">
-        <div style="width: 85%; max-width: 450px; margin-top: 3%;">
-            <div class="container-sm" style="border-color: black 10px;">
-                <div class="card">
-                    <div class="card-body" style="box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;">
-                        <form enctype="multipart/form-data" method="post" action="/register" id="registerForm">
-                            <div class="container-sm">
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text"><img src="../images/camera.svg"/></span>
-                                    <div class="form-floating">
-                                        <input type="file" name="file" class="form-control" id="file" accept="image/*" onchange="previewImage(event)">
-                                        <label class="label-cadastro-login">Foto de Perfil</label>
-                                    </div>
-                                    <div id="imagePreview" style="margin-left: 10px;">
-                                        <img id="previewImg" src="#" alt="Preview" style="display:none; width: 55px; height: 55px; object-fit: cover; border: 1px solid #ccc; border-radius: 4px;">
-                                    </div>
-                                </div>
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text"><img src="../images/person-fill.svg"/></span>
-                                    <div class="form-floating">
-                                        <input type="text" name="f_nome" class="form-control" id="f_nome"
-                                            placeholder="Digite seu Nome" required>
-                                        <label for="f_nome" class="label-cadastro-login">Nome</label>
-                                    </div>
-                                </div>
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text"><img src="../images/people-fill.svg"/></span>
-                                    <div class="form-floating">
-                                        <input type="text" name="f_sobrenome" class="form-control" id="f_sobrenome"
-                                            placeholder="Digite seu Sobrenome" required>
-                                        <label for="f_sobrenome" class="label-cadastro-login">Sobrenome</label>
-                                    </div>
-                                </div>
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text"><img src="../images/calendar3.svg"/></span>
-                                    <div class="form-floating">
-                                        <input type="date" name="f_nasc" class="form-control" id="f_nasc"
-                                            placeholder="" required>
-                                        <label for="f_nasc" class="label-cadastro-login">Data de Nascimento</label>
-                                    </div>
-                                </div>
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text"><img src="../images/card-list.svg"/></span>
-                                    <div class="form-floating">
-                                        <input type="text" name="f_cpf" class="form-control" id="f_cpf"
-                                            placeholder="Digite seu CPF" maxlength="14" required oninput="mascara_cpf(this)"> 
-                                        <label for="f_cpf" class="label-cadastro-login">CPF</label>
-                                    </div>
-                                </div>
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text"><img src="../images/telephone-fill.svg"/></span>
-                                    <div class="form-floating">
-                                        <input type="tel" name="f_telefone" class="form-control" id="f_telefone"
-                                            placeholder="Digite seu Telefone" maxlength="15" required oninput="mascara_tel(this)">
-                                        <label for="f_telefone" class="label-cadastro-login">Telefone</label>
-                                    </div>
-                                </div>
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text"><img src="../images/envelope-at.svg"/></span>
-                                    <div class="form-floating">
-                                        <input type="email" name="f_email" class="form-control" id="f_email"
-                                            placeholder="SeuEmail@SeuDomínio" maxlength="100" required>
-                                        <label for="f_email" class="label-cadastro-login">Email</label>
-                                    </div>
-                                </div>
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text"><img src="../images/key-fill.svg" alt="key icon"/></span>
-                                    <div class="form-floating">
-                                        <input type="password" name="f_senha" class="form-control" id="senha"
-                                            placeholder="Digite sua Senha" minlength="8" required>
-                                        <label for="senha" class="label-cadastro-login">Senha</label>
-                                        <img src="../images/eye-slash.svg" class="toggle-visibility" id="toggleSenha" alt="toggle visibility"/>
-                                    </div>
-                                </div>
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text"><img src="../images/key-fill.svg" alt="key icon"/></span>
-                                    <div class="form-floating">
-                                        <input type="password" name="confirmasenha" class="form-control" id="confirmasenha"
-                                            placeholder="Confirme sua senha" minlength="8" required>
-                                        <label for="confirmasenha" class="label-cadastro-login">Confirme sua senha</label>
-                                        <img src="../images/eye-slash.svg" class="toggle-visibility" id="toggleConfirmaSenha" alt="toggle visibility"/>
-                                    </div>
-                                </div>
-                                <div id="passwordFeedback" style="color: red; font-size: 14px; display: none;">
-                                    <ul>
-                                        <li id="minChar">A senha deve ter no mínimo 8 caracteres.</li>
-                                        <li id="upperChar">A senha deve conter pelo menos uma letra maiúscula.</li>
-                                        <li id="symbolChar">A senha deve conter pelo menos um símbolo.</li>
-                                        <li id="matchChar">As senhas devem ser iguais.</li>
-                                    </ul>
-                                </div>
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-success btn-lg btn-block mt-3"
-                                        style="transition: all 0.2s ease-in-out; font-size: 18px; color: #ffff; font-family: sans-serif; font-weight: bolder;">CADASTRAR</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
 
-    <script>
-        function previewImage(event) {
-            const imagePreview = document.getElementById('previewImg');
-            const file = event.target.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = 'block';
-            }
-
-            if (file) {
-                reader.readAsDataURL(file);
-            } else {
-                imagePreview.style.display = 'none';
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            const senha = document.getElementById("senha");
-            const confirmasenha = document.getElementById("confirmasenha");
-            const passwordFeedback = document.getElementById("passwordFeedback");
-            const minChar = document.getElementById("minChar");
-            const upperChar = document.getElementById("upperChar");
-            const symbolChar = document.getElementById("symbolChar");
-            const matchChar = document.getElementById("matchChar");
-
-            function validatePassword() {
-                const password = senha.value;
-                let valid = true;
-
-                // Verifica se a senha tem pelo menos 8 caracteres
-                if (password.length >= 8) {
-                    minChar.style.color = "green";
-                } else {
-                    minChar.style.color = "red";
-                    valid = false;
-                }
-
-                // Verifica se a senha tem pelo menos uma letra maiúscula
-                if (/[A-Z]/.test(password)) {
-                    upperChar.style.color = "green";
-                } else {
-                    upperChar.style.color = "red";
-                    valid = false;
-                }
-
-                // Verifica se a senha tem pelo menos um símbolo
-                if (/[\W_]/.test(password)) {
-                    symbolChar.style.color = "green";
-                } else {
-                    symbolChar.style.color = "red";
-                    valid = false;
-                }
-
-                // Verifica se as senhas coincidem
-                if (password === confirmasenha.value) {
-                    matchChar.style.color = "green";
-                } else {
-                    matchChar.style.color = "red";
-                    valid = false;
-                }
-
-                // Exibe o feedback apenas se algum critério não for atendido
-                passwordFeedback.style.display = valid ? "none" : "block";
-            }
-
-            senha.addEventListener("input", validatePassword);
-            confirmasenha.addEventListener("input", validatePassword);
+      try {
+        const response = await fetch('/auth/register', {
+          method: 'POST',
+          body: formData
         });
-    </script>
-    <%- include('./partials/footer.ejs') %>
-    <%- include('./partials/vlibras.ejs') %>
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          window.location.href = '/';
+        } else {
+          const errorMessage = data.message || 'Erro ao processar o cadastro';
+          document.getElementById('errorMessage').textContent = errorMessage;
+        }
+      } catch (error) {
+        console.error('Erro:', error);
+        document.getElementById('errorMessage').textContent = 'Erro ao processar o cadastro';
+      }
+    });
+
+    // Validação de senha em tempo real
+    const senha = document.getElementById('f_senha');
+    const confirmarSenha = document.getElementById('confirmasenha');
+    const minLength = document.getElementById('minLength');
+    const hasUpperCase = document.getElementById('hasUpperCase');
+    const hasSymbol = document.getElementById('hasSymbol');
+    const passwordMatch = document.getElementById('passwordMatch');
+
+    function validatePassword() {
+      const val = senha.value;
+      
+      minLength.style.color = val.length >= 8 ? 'green' : 'red';
+      hasUpperCase.style.color = /[A-Z]/.test(val) ? 'green' : 'red';
+      hasSymbol.style.color = /[\W_]/.test(val) ? 'green' : 'red';
+      
+      if (confirmarSenha.value) {
+        passwordMatch.textContent = val === confirmarSenha.value ? 
+          'Senhas conferem' : 'Senhas não conferem';
+        passwordMatch.style.color = val === confirmarSenha.value ? 
+          'green' : 'red';
+      }
+    }
+
+    senha.addEventListener('input', validatePassword);
+    confirmarSenha.addEventListener('input', validatePassword);
+  </script>
+
+  <%- include('partials/footer.ejs') %>
 </body>
