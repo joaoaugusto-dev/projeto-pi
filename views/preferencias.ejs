@@ -30,12 +30,33 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="text-center">Minhas Preferências</h3>
+                        <h3 class="text-center font-scale">Minhas Preferências</h3>
                     </div>
                     <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="font-scale">Ambiente Atual</h5>
+                                        <p class="mb-2 font-scale">Temperatura Atual: <span id="temp_atual">--°C</span></p>
+                                        <p class="font-scale">Temperatura Setada: <span id="temp_setada">--°C</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="font-scale">Minhas Preferências</h5>
+                                        <p class="mb-2 font-scale">Temperatura: <%= funcionario.temp_preferida %>°C</p>
+                                        <p class="font-scale">Luminosidade: <%= funcionario.lumi_preferida %> lux</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <form id="preferencesForm">
                             <div class="mb-4">
-                                <label for="temp_preferida" class="form-label">Temperatura Preferida (°C)</label>
+                                <label for="temp_preferida" class="form-label font-scale">Temperatura Preferida (°C)</label>
                                 <input type="range" class="form-range" id="temp_preferida" name="temp_preferida" 
                                     min="16" max="30" step="0.5" value="<%= funcionario.temp_preferida %>">
                                 <div class="text-center">
@@ -61,18 +82,25 @@
                                 </div>
                             </div>
 
-                            <div class="text-center">
+                            <div class="text-center mt-4">
                                 <button type="submit" class="btn btn-primary">Salvar Preferências</button>
                             </div>
-                            <div id="errorMessage" class="text-danger mt-3"></div>
                         </form>
+                        <div id="errorMessage" class="text-danger mt-3"></div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
+        // Função para atualizar as temperaturas
+        function atualizarTemperaturas() {
+            // Aqui você deve implementar a lógica para buscar as temperaturas do servidor
+            document.getElementById('temp_atual').textContent = '25°C';
+            document.getElementById('temp_setada').textContent = '23°C';
+        }
+
+        // Atualizar temperaturas a cada 30 segundos
+        atualizarTemperaturas();
+        setInterval(atualizarTemperaturas, 30000);
+
         document.getElementById('temp_preferida').addEventListener('input', function() {
             document.getElementById('temp_value').textContent = this.value + '°C';
         });

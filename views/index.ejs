@@ -2,12 +2,12 @@
 <%- include('partials/menu.ejs') %>
 
 <body>
-    <div class="container mt-5">
+    <div class="container mt-3">
         <% if (!user) { %>
             <div class="row justify-content-center">
                 <div class="col-md-8 text-center">
-                    <h1>Bem-vindo ao Sistema de Automação</h1>
-                    <p class="mt-4">Por favor, faça login ou cadastre-se para acessar o sistema.</p>
+                    <h1 class="font-scale">Bem-vindo ao Sistema de Automação</h1>
+                    <p class="mt-4 font-scale">Por favor, faça login ou cadastre-se para acessar o sistema.</p>
                     <div class="mt-4">
                         <a href="/entrar" class="btn btn-primary me-3">Login</a>
                         <a href="/cadastro" class="btn btn-success">Cadastro</a>
@@ -24,8 +24,8 @@
                             <% } else { %>
                                 <img src="/images/perfil-default.png" alt="Foto de perfil padrão" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
                             <% } %>
-                            <h4><%= funcionario.nome %> <%= funcionario.sobrenome %></h4>
-                            <p class="text-muted">Matrícula: <%= funcionario.matricula %></p>
+                            <h4 class="font-scale"><%= funcionario.nome %> <%= funcionario.sobrenome %></h4>
+                            <p class="text-muted font-scale">Matrícula: <%= funcionario.matricula %></p>
                         </div>
                     </div>
                 </div>
@@ -33,34 +33,62 @@
                 <div class="col-md-8">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h5>Preferências de Ambiente</h5>
+                            <h5 class="mb-0 font-scale" style="font-size: 1.1rem;">Suas Preferências</h5>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <h6>Temperatura Preferida</h6>
-                                    <p class="display-4"><%= funcionario.temp_preferida %>°C</p>
+                                    <h6 class="font-scale" style="font-size: 0.9rem;">Temperatura Preferida</h6>
+                                    <p class="h2 font-scale"><%= funcionario.temp_preferida %>°C</p>
                                 </div>
                                 <div class="col-md-6">
-                                    <h6>Luminosidade Preferida</h6>
-                                    <p class="display-4"><%= funcionario.lumi_preferida %> lux</p>
+                                    <h6 class="font-scale" style="font-size: 0.9rem;">Luminosidade Preferida</h6>
+                                    <p class="h2 font-scale"><%= funcionario.lumi_preferida %> lux</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card mb-4">
                         <div class="card-header">
-                            <h5>Tag NFC</h5>
+                            <h5 class="mb-0 font-scale" style="font-size: 1.1rem;">Configurações Definidas</h5>
+                            <small class="text-muted font-scale" style="font-size: 0.8rem;">Baseado na média das preferências de todos no local</small>
                         </div>
                         <div class="card-body">
-                            <% if (funcionario.tag_nfc) { %>
-                                <p>Tag NFC vinculada: <%= funcionario.tag_nfc %></p>
-                            <% } else { %>
-                                <p>Nenhuma tag NFC vinculada</p>
-                            <% } %>
-                            <a href="/preferencias" class="btn btn-primary">Gerenciar Preferências</a>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 style="font-size: 0.9rem;">Temperatura Média</h6>
+                                    <p class="h2"><span id="temp_media">--</span>°C</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 style="font-size: 0.9rem;">Luminosidade Média</h6>
+                                    <p class="h2"><span id="lumi_media">--</span> lux</p>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0" style="font-size: 1.1rem;">Dados Atuais</h5>
+                            <small class="text-muted" style="font-size: 0.8rem;">Valores medidos pelos sensores</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 style="font-size: 0.9rem;">Temperatura Atual</h6>
+                                    <p class="h2"><span id="temp_atual">--</span>°C</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 style="font-size: 0.9rem;">Luminosidade Atual</h6>
+                                    <p class="h2"><span id="lumi_atual">--</span> lux</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mb-2">
+                        <a href="/preferencias" class="btn btn-primary">Gerenciar Preferências</a>
                     </div>
                 </div>
             </div>
@@ -69,4 +97,24 @@
 
     <%- include('partials/footer.ejs') %>
     <%- include('./partials/vlibras.ejs') %>
+    
+    <script>
+        // Função para atualizar os dados do ambiente
+        function atualizarDadosAmbiente() {
+            // Aqui você deve implementar a lógica para buscar os dados do servidor
+            fetch('/api/ambiente-atual')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('temp_atual').textContent = data.temperatura || '--';
+                    document.getElementById('lumi_atual').textContent = data.luminosidade || '--';
+                    document.getElementById('temp_media').textContent = data.temperatura_media || '--';
+                    document.getElementById('lumi_media').textContent = data.luminosidade_media || '--';
+                })
+                .catch(error => console.error('Erro ao atualizar dados:', error));
+        }
+
+        // Atualizar dados a cada 30 segundos
+        atualizarDadosAmbiente();
+        setInterval(atualizarDadosAmbiente, 30000);
+    </script>
 </body>

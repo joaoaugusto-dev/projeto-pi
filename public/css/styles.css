@@ -1,0 +1,196 @@
+/* Estilos base responsivos */
+h1 { font-size: calc(1.5em + 0.5vw); }
+h2 { font-size: calc(1.3em + 0.3vw); }
+h3 { font-size: calc(1.2em + 0.2vw); }
+h4 { font-size: calc(1.1em + 0.1vw); }
+h5 { font-size: calc(1em + 0.1vw); }
+h6 { font-size: calc(0.9em + 0.1vw); }
+
+/* Classes utilitárias */
+.font-static { font-size: 16px !important; }
+.font-scale { font-size: inherit; }
+.card-title { font-size: calc(1.1em + 0.1vw); }
+.btn, .nav-link { font-size: inherit; }
+input, select, textarea { font-size: inherit !important; }
+
+/* Zoom profile */
+.zoom-profile {
+    transition: transform .2s;
+}
+.zoom-profile:hover {
+    transform: scale(1.15);
+}
+
+/* Font control */
+.font-control {
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.font-control button {
+    background: none;
+    border: none;
+    color: #fff;
+    padding: 5px;
+    cursor: pointer;
+}
+.font-control button:disabled {
+    color: #666;
+    cursor: not-allowed;
+}
+
+/* Theme control */
+.theme-control {
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.theme-control button {
+    background: none;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.theme-control button.active {
+    background-color: #fff;
+    color: #000;
+}
+
+/* Theme: Light (default) */
+body {
+    transition: all 0.3s ease;
+}
+
+/* Theme: Dark */
+[data-theme="dark"] {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+[data-theme="dark"] .navbar {
+    background-color: #000 !important;
+}
+[data-theme="dark"] .card {
+    background-color: #2d2d2d;
+    color: #ffffff;
+}
+[data-theme="dark"] .modal-content {
+    background-color: #2d2d2d;
+    color: #ffffff;
+}
+[data-theme="dark"] .modal-header {
+    border-bottom: 1px solid #404040;
+}
+[data-theme="dark"] .modal-footer {
+    border-top: 1px solid #404040;
+}
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background-color: #333333;
+    color: #ffffff;
+    border-color: #404040;
+}
+
+/* Theme: High Contrast */
+[data-theme="high-contrast"] {
+    background-color: #000000;
+    color: #ffffff;
+}
+[data-theme="high-contrast"] .navbar {
+    background-color: #000000 !important;
+    border-bottom: 2px solid #ffffff;
+}
+[data-theme="high-contrast"] a {
+    color: #ffff00 !important;
+}
+[data-theme="high-contrast"] .btn {
+    background-color: #000000;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+}
+[data-theme="high-contrast"] .modal-content {
+    background-color: #000000;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+}
+[data-theme="high-contrast"] .modal-header,
+[data-theme="high-contrast"] .modal-footer {
+    border-color: #ffffff;
+}
+[data-theme="high-contrast"] input,
+[data-theme="high-contrast"] select,
+[data-theme="high-contrast"] textarea {
+    background-color: #000000;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+}
+[data-theme="high-contrast"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Estilos para o gráfico */
+.chart-container {
+    position: relative;
+    margin: auto;
+    height: 80vh;
+    width: 80vw;
+}
+
+/* Estilos para a tabela */
+.scrollable-table {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Estilos para o upload de foto */
+.upload-box {
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    margin: 20px 0;
+    cursor: pointer;
+}
+
+.upload-box:hover {
+    border-color: #666;
+}
+
+.upload-box img {
+    max-width: 200px;
+    max-height: 200px;
+    margin-bottom: 10px;
+}
+
+/* Estilos para validação de senha */
+.password-requirements {
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+.password-requirements p {
+    margin: 5px 0;
+    color: red;
+}
+
+/* Estilos para modais */
+.modal-backdrop.show {
+    opacity: 0.7;
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(0,0,0,0.1);
+}
