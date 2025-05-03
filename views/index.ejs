@@ -2,93 +2,111 @@
 <%- include('partials/menu.ejs') %>
 
 <body>
-    <div class="container mt-3">
+    <div class="container py-5">
         <% if (!user) { %>
-            <div class="row justify-content-center">
-                <div class="col-md-8 text-center">
-                    <h1 class="font-scale">Bem-vindo ao Sistema de Automação</h1>
-                    <p class="mt-4 font-scale">Por favor, faça login ou cadastre-se para acessar o sistema.</p>
-                    <div class="mt-4">
-                        <a href="/entrar" class="btn btn-primary me-3">Login</a>
-                        <a href="/cadastro" class="btn btn-success">Cadastro</a>
+            <div class="row align-items-center justify-content-between">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h1 class="display-4 fw-bold mb-4" style="color: var(--primary-color)">Sistema de Automação Inteligente</h1>
+                    <p class="lead mb-4">Controle automático de iluminação e temperatura personalizado para cada usuário.</p>
+                    <div class="d-flex gap-3">
+                        <a href="/entrar" class="btn btn-primary btn-lg px-4">Entrar</a>
+                        <a href="/cadastro" class="btn btn-outline-primary btn-lg px-4">Cadastrar</a>
                     </div>
+                </div>
+                <div class="col-md-5">
+                    <img src="/images/automation.svg" alt="Automação" class="img-fluid rounded-custom shadow-custom">
                 </div>
             </div>
         <% } else { %>
-            <div class="row">
+            <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="card mb-4">
-                        <div class="card-body text-center">
-                            <% if (funcionario.foto) { %>
-                                <img src="/uploads/<%= funcionario.foto %>" alt="Foto de perfil" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-                            <% } else { %>
-                                <img src="/images/perfil-default.png" alt="Foto de perfil padrão" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-                            <% } %>
-                            <h4 class="font-scale"><%= funcionario.nome %> <%= funcionario.sobrenome %></h4>
-                            <p class="text-muted font-scale">Matrícula: <%= funcionario.matricula %></p>
+                    <div class="card h-100 border-0 shadow-custom hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                <% if (funcionario.foto) { %>
+                                    <img src="/uploads/<%= funcionario.foto %>" alt="Foto de perfil" 
+                                         class="rounded-circle border border-3 border-primary" 
+                                         style="width: 120px; height: 120px; object-fit: cover;">
+                                <% } else { %>
+                                    <img src="/images/perfil-default.png" alt="Foto de perfil padrão" 
+                                         class="rounded-circle border border-3 border-primary" 
+                                         style="width: 120px; height: 120px; object-fit: cover;">
+                                <% } %>
+                            </div>
+                            <h4 class="fw-bold mb-1"><%= funcionario.nome %> <%= funcionario.sobrenome %></h4>
+                            <p class="text-muted mb-3">Matrícula: <%= funcionario.matricula %></p>
+                            <a href="/dados" class="btn btn-outline-primary w-100">Ver Perfil</a>
                         </div>
                     </div>
                 </div>
                 
                 <div class="col-md-8">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="mb-0 font-scale" style="font-size: 1.1rem;">Suas Preferências</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6 class="font-scale" style="font-size: 0.9rem;">Temperatura Preferida</h6>
-                                    <p class="h2 font-scale"><%= funcionario.temp_preferida %>°C</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 class="font-scale" style="font-size: 0.9rem;">Luminosidade Preferida</h6>
-                                    <p class="h2 font-scale"><%= funcionario.lumi_preferida %> lux</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="mb-0 font-scale" style="font-size: 1.1rem;">Configurações Definidas</h5>
-                            <small class="text-muted font-scale" style="font-size: 0.8rem;">Baseado na média das preferências de todos no local</small>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6 style="font-size: 0.9rem;">Temperatura Média</h6>
-                                    <p class="h2"><span id="temp_media">--</span>°C</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 style="font-size: 0.9rem;">Luminosidade Média</h6>
-                                    <p class="h2"><span id="lumi_media">--</span> lux</p>
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="card border-0 shadow-custom hover-lift">
+                                <div class="card-body p-4">
+                                    <h5 class="fw-bold mb-4">Suas Preferências</h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <i class="bi bi-thermometer-half fs-3 text-primary me-3"></i>
+                                                <div>
+                                                    <small class="text-muted d-block">Temperatura Preferida</small>
+                                                    <h3 class="mb-0 fw-bold"><%= funcionario.temp_preferida %>°C</h3>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <i class="bi bi-brightness-high fs-3 text-primary me-3"></i>
+                                                <div>
+                                                    <small class="text-muted d-block">Luminosidade Preferida</small>
+                                                    <h3 class="mb-0 fw-bold"><%= funcionario.lumi_preferida %> lux</h3>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="card mb-3">
-                        <div class="card-header">
-                            <h5 class="mb-0" style="font-size: 1.1rem;">Dados Atuais</h5>
-                            <small class="text-muted" style="font-size: 0.8rem;">Valores medidos pelos sensores</small>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6 style="font-size: 0.9rem;">Temperatura Atual</h6>
-                                    <p class="h2"><span id="temp_atual">--</span>°C</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 style="font-size: 0.9rem;">Luminosidade Atual</h6>
-                                    <p class="h2"><span id="lumi_atual">--</span> lux</p>
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-custom hover-lift h-100">
+                                <div class="card-body p-4">
+                                    <h5 class="fw-bold mb-3">Configurações Atuais</h5>
+                                    <div class="mb-4">
+                                        <small class="text-muted d-block mb-1">Temperatura</small>
+                                        <div class="d-flex align-items-baseline">
+                                            <h2 class="mb-0 me-2"><span id="temp_atual">--</span>°C</h2>
+                                            <small class="text-muted">Média: <span id="temp_media">--</span>°C</small>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block mb-1">Luminosidade</small>
+                                        <div class="d-flex align-items-baseline">
+                                            <h2 class="mb-0 me-2"><span id="lumi_atual">--</span> lux</h2>
+                                            <small class="text-muted">Média: <span id="lumi_media">--</span> lux</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="text-center mb-2">
-                        <a href="/preferencias" class="btn btn-primary">Gerenciar Preferências</a>
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-custom hover-lift h-100">
+                                <div class="card-body p-4">
+                                    <h5 class="fw-bold mb-4">Ações Rápidas</h5>
+                                    <div class="d-grid gap-3">
+                                        <a href="/preferencias" class="btn btn-primary">
+                                            <i class="bi bi-sliders me-2"></i>Gerenciar Preferências
+                                        </a>
+                                        <a href="/historico" class="btn btn-outline-primary">
+                                            <i class="bi bi-clock-history me-2"></i>Ver Histórico
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -99,9 +117,7 @@
     <%- include('./partials/vlibras.ejs') %>
     
     <script>
-        // Função para atualizar os dados do ambiente
         function atualizarDadosAmbiente() {
-            // Aqui você deve implementar a lógica para buscar os dados do servidor
             fetch('/api/ambiente-atual')
                 .then(response => response.json())
                 .then(data => {
@@ -113,7 +129,6 @@
                 .catch(error => console.error('Erro ao atualizar dados:', error));
         }
 
-        // Atualizar dados a cada 30 segundos
         atualizarDadosAmbiente();
         setInterval(atualizarDadosAmbiente, 30000);
     </script>

@@ -1,3 +1,67 @@
+<%- include('./confirmLogoutModal.ejs') %>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="/" id="font-navbar">
+      <img src="../../images/icon_navbar.png" alt="Logo" width="40" height="40" class="d-inline-block align-text-center me-2">
+      <span class="text-white fw-bold">Sistema de Automação</span>
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item theme-control">
+          <button id="lightThemeBtn" title="Tema Claro" class="theme-btn" onclick="setTheme('light')">☀️</button>
+          <button id="darkThemeBtn" title="Tema Escuro" class="theme-btn" onclick="setTheme('dark')">🌙</button>
+          <button id="contrastThemeBtn" title="Alto Contraste" class="theme-btn" onclick="setTheme('high-contrast')">◐</button>
+        </li>
+        
+        <li class="nav-item font-control">
+          <button id="decreaseFontBtn" class="font-btn" title="Diminuir fonte">A-</button>
+          <button id="increaseFontBtn" class="font-btn" title="Aumentar fonte">A+</button>
+        </li>
+
+        <% if (!user) { %>
+          <li class="nav-item">
+            <a class="nav-link btn btn-outline-light mx-2 px-4" href="/entrar">Entrar</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link btn btn-light text-primary mx-2 px-4" href="/cadastro">Cadastrar</a>
+          </li>
+        <% } else { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/preferencias">Preferências</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/historico">Histórico</a>
+          </li>
+          <li class="nav-item me-2">
+            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#confirmLogoutModal">Sair</a>
+          </li>
+          <li class="nav-item">
+            <div class="zoom-profile">
+              <a href="/dados">
+                <% if (funcionario && funcionario.foto) { %>
+                  <img class="rounded-circle border border-2 border-white" alt="foto-de-perfil" 
+                       src="/uploads/<%= funcionario.foto %>" 
+                       style="width: 40px; height: 40px; object-fit: cover;">
+                <% } else { %>
+                  <img class="rounded-circle border border-2 border-white" alt="foto-de-perfil" 
+                       src="/images/perfil-default.png" 
+                       style="width: 40px; height: 40px; object-fit: cover;">
+                <% } %>
+              </a>
+            </div>
+          </li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+</nav>
+
 <style>
   .zoom-profile {
     transition: transform .2s;
@@ -90,79 +154,70 @@
     background-color: #fff;
     color: #000;
   }
+
+  .theme-btn {
+    width: 35px !important;
+    height: 35px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+  }
+
+  .theme-btn:hover {
+    transform: scale(1.1);
+    background-color: rgba(255,255,255,0.2);
+  }
+
+  .theme-btn.active {
+    background-color: #fff;
+    color: var(--primary-color);
+  }
+
+  .font-btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.5);
+    color: #fff;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin: 0 2px;
+    transition: all 0.3s ease;
+  }
+
+  .font-btn:hover:not(:disabled) {
+    background-color: rgba(255,255,255,0.2);
+  }
+
+  .font-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .navbar {
+    padding: 0.8rem 0;
+  }
+
+  .nav-link {
+    position: relative;
+    font-weight: 500;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    background: var(--accent-color);
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
+  }
 </style>
-
-<div class="modal fade" id="confirmLogoutModal" tabindex="-1" aria-labelledby="confirmLogoutModalLabel" aria-hidden="true" style="color: black;">
-  <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title" id="confirmLogoutModalLabel">Confirmar Logout</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-              <p>Deseja realmente sair da sua conta?</p>
-          </div>
-          <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button id="confirmLogoutButton" type="button" class="btn btn-danger">Confirmar Logout</button>
-          </div>
-      </div>
-  </div>
-</div>
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center" href="/" id="font-navbar">
-      <img src="../../images/icon_navbar.png" alt="Logo" width="58" height="58" class="d-inline-block align-text-center">
-    </a>
-    <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <li class="nav-item theme-control">
-          <button id="lightThemeBtn" title="Tema Claro" onclick="setTheme('light')">☀️</button>
-          <button id="darkThemeBtn" title="Tema Escuro" onclick="setTheme('dark')">🌙</button>
-          <button id="contrastThemeBtn" title="Alto Contraste" onclick="setTheme('high-contrast')" style="font-size: 1.2em;">◐</button>
-        </li>
-        <li class="nav-item font-control">
-          <button id="decreaseFontBtn" title="Diminuir fonte" onclick="decreaseFont()">A-</button>
-          <button id="increaseFontBtn" title="Aumentar fonte" onclick="increaseFont()">A+</button>
-        </li>
-        <% if (!user) { %>
-          <li class="nav-item">
-            <a class="nav-link" href="/entrar" id="animacao-sublinhada-entrar">ENTRAR</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/cadastro" id="animacao-sublinhada-cadastrar">CADASTRAR-SE</a>
-          </li>
-        <% } else { %>
-          <li class="nav-item">
-            <a class="nav-link" href="/preferencias" id="animacao-sublinhada-preferencias">PREFERÊNCIAS</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/historico" id="animacao-sublinhada-historico">HISTÓRICO</a>
-          </li>
-          <li class="nav-item" style="margin-right: 5px;">
-            <a class="nav-link" href="#" id="animacao-sublinhada-sair" data-bs-toggle="modal" data-bs-target="#confirmLogoutModal">SAIR</a>
-          </li>
-          <li class="nav-item">
-            <div class="zoom-profile">
-              <a href="/dados">
-                <% if (funcionario && funcionario.foto) { %>
-                  <img class="shadow-4-strong cursor-pointer" alt="foto-de-perfil" src="/uploads/<%= funcionario.foto %>" style="width: 45px; height: 45px; object-fit: cover; border-radius: 50%;">
-                <% } else { %>
-                  <img class="shadow-4-strong cursor-pointer" alt="foto-de-perfil" src="/images/perfil-default.png" style="width: 45px; height: 45px; object-fit: cover; border-radius: 50%;">
-                <% } %>
-              </a>
-            </div>
-          </li>
-        <% } %>
-      </ul>
-    </div>
-  </div>
-</nav>
 
 <script>
   let currentFontSize = parseInt(localStorage.getItem('fontSize')) || 16;
@@ -232,5 +287,10 @@
   document.addEventListener('DOMContentLoaded', () => {
     updateFontSize();
     setTheme(currentTheme);
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const theme = localStorage.getItem('theme') || 'light';
+    setTheme(theme);
   });
 </script>

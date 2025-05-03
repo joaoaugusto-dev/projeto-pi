@@ -7,6 +7,7 @@
 #define SS_PIN 5
 #define RST_PIN 22
 #define LED_PIN 2
+#define TEMPO_LIMITE_REGISTRO 30000 // 30 segundos em milissegundos
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 
@@ -17,6 +18,7 @@ const char* serverUrl = "https://fantastic-palm-tree-gg4rqqg756939qxg-3000.app.g
 bool modoRegistroTag = false;
 String matriculaRegistro = "";
 unsigned long ultimaVerificacao = 0;
+unsigned long inicioRegistro = 0;
 const unsigned long intervaloVerificacao = 2000; // 2 segundos
 
 void piscarLED(int vezes, int tempoOn, int tempoOff) {
@@ -31,6 +33,15 @@ void piscarLED(int vezes, int tempoOn, int tempoOff) {
 void verificarSolicitacaoRegistro() {
     if (WiFi.status() != WL_CONNECTED) return;
     
+    // Se estiver em modo registro, verifica se excedeu o tempo limite
+    if (modoRegistroTag && (millis() - inicioRegistro >= TEMPO_LIMITE_REGISTRO)) {
+        modoRegistroTag = false;
+        matriculaRegistro = "";
+        Serial.println("\nTempo limite de registro excedido");
+        piscarLED(3, 100, 100);
+        return;
+    }
+    
     HTTPClient http;
     String url = String(serverUrl) + "tag-status/pendente";
     http.begin(url);
@@ -41,15 +52,21 @@ void verificarSolicitacaoRegistro() {
         DynamicJsonDocument doc(1024);
         DeserializationError error = deserializeJson(doc, payload);
         
-        if (!error && doc.containsKey("status") && doc.containsKey("matricula")) {
+        if (!error && doc.containsKey("status")) {
             String status = doc["status"].as<String>();
-            if (status == "aguardando") {
+            if (status == "aguardando" && !modoRegistroTag) {
                 matriculaRegistro = doc["matricula"].as<String>();
                 modoRegistroTag = true;
+                inicioRegistro = millis(); // Inicia o contador de tempo
                 Serial.println("\nModo de registro ativado via web");
                 Serial.println("Matrícula: " + matriculaRegistro);
                 Serial.println("Aproxime a nova tag do leitor...");
                 piscarLED(2, 200, 200);
+            } else if (status == "nenhum" && modoRegistroTag) {
+                modoRegistroTag = false;
+                matriculaRegistro = "";
+                Serial.println("\nRegistro de tag cancelado");
+                piscarLED(3, 100, 100);
             }
         }
     }

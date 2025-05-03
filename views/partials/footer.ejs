@@ -1,2 +1,43 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.min.js" integrity="sha384-VQqxDN0EQCkWoxt/0vsQvZswzTHUVOImccYmSyhJTp7kGtPed0Qcx8rK9h9YEgx+" crossorigin="anonymous"></script>
+
+<footer class="bg-dark text-light py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h5 class="fw-bold mb-3">Sistema de Automação</h5>
+                <p class="mb-0 text-muted">Sistema inteligente para controle de iluminação e temperatura em ambientes corporativos.</p>
+            </div>
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h5 class="fw-bold mb-3">Links Rápidos</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="/" class="text-muted text-decoration-none hover-lift">Início</a></li>
+                    <li class="mb-2"><a href="/preferencias" class="text-muted text-decoration-none hover-lift">Preferências</a></li>
+                    <li class="mb-2"><a href="/historico" class="text-muted text-decoration-none hover-lift">Histórico</a></li>
+                    <li><a href="/sobre" class="text-muted text-decoration-none hover-lift">Sobre</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5 class="fw-bold mb-3">Acessibilidade</h5>
+                <div class="d-flex gap-2 mb-3">
+                    <button class="btn btn-sm btn-outline-light" onclick="setTheme('light')">Tema Claro</button>
+                    <button class="btn btn-sm btn-outline-light" onclick="setTheme('dark')">Tema Escuro</button>
+                    <button class="btn btn-sm btn-outline-light" onclick="setTheme('high-contrast')">Alto Contraste</button>
+                </div>
+                <div class="d-flex gap-2">
+                    <button id="decreaseFontBtn" class="btn btn-sm btn-outline-light">A-</button>
+                    <button id="increaseFontBtn" class="btn btn-sm btn-outline-light">A+</button>
+                </div>
+            </div>
+        </div>
+        <hr class="my-4 border-secondary">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                <small class="text-muted">&copy; <%= new Date().getFullYear() %> Sistema de Automação. Todos os direitos reservados.</small>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <img src="/images/icon_navbar.png" alt="Logo" height="30">
+            </div>
+        </div>
+    </div>
+</footer>

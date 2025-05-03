@@ -164,9 +164,11 @@ function iniciarVerificacaoTag() {
         verificarNovaTag();
     }, 2000);
 
+    // Mantendo exatamente o mesmo tempo limite que o ESP32 (30 segundos)
     setTimeout(() => {
         if (aguardandoTag) {
             aguardandoTag = false;
+            modoRegistro = false;
             document.getElementById('tagMessage').textContent = 'Tempo limite excedido';
             document.getElementById('statusIcon').innerHTML = '<i class="bi bi-x-circle text-warning" style="font-size: 2rem;"></i>';
             setTimeout(() => tagModal.hide(), 1500);

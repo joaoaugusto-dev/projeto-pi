@@ -240,4 +240,21 @@ router.post('/registrar-tag/:matricula', async (req, res) => {
     }
 });
 
+// Rota para cancelar o registro de tag
+router.post('/cancelar-registro-tag/:matricula', async (req, res) => {
+    const { matricula } = req.params;
+    
+    try {
+        if (cadastroTagPendente === matricula) {
+            cadastroTagPendente = null;
+            res.json({ message: 'Registro de tag cancelado com sucesso' });
+        } else {
+            res.status(400).json({ message: 'Nenhum registro de tag pendente para esta matrícula' });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Erro ao cancelar registro de tag' });
+    }
+});
+
 module.exports = router;
