@@ -3,13 +3,24 @@
 #include <SPI.h>
 #include <MFRC522.h>
 #include <ArduinoJson.h>
+#include <DHT.h>
 
 #define SS_PIN 5
 #define RST_PIN 22
 #define LED_PIN 2
+#define DHT_PIN 2
+#define DHTTYPE DHT22
+#define LDR_PIN 15  // Atualizando para o pino correto do LDR
 #define TEMPO_LIMITE_REGISTRO 30000 // 30 segundos em milissegundos
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);
+DHT dht(DHT_PIN, DHTTYPE);
+
+float temperatura = 0;
+float humidade = 0;
+int luminosidade = 0;
+unsigned long ultimaLeituraDHT = 0;
+const unsigned long intervaloLeituraDHT = 2000; // 2 segundos para leitura do DHT
 
 const char* ssid = "João Augusto";
 const char* password = "131103r7";
@@ -77,7 +88,10 @@ void setup() {
     Serial.begin(115200);
     SPI.begin();
     mfrc522.PCD_Init();
+    dht.begin();
     pinMode(LED_PIN, OUTPUT);
+    pinMode(LDR_PIN, INPUT);  // Configurando o pino do LDR
+    analogSetAttenuation(ADC_11db);  // Configuração para leitura adequada do ADC
 
     WiFi.begin(ssid, password);
     Serial.println("Conectando ao WiFi...");
@@ -92,8 +106,61 @@ void setup() {
     Serial.println("\nWiFi conectado!");
 }
 
+void enviarDadosDHT() {
+    if (!isnan(temperatura) && !isnan(humidade) && WiFi.status() == WL_CONNECTED) {
+        HTTPClient http;
+        String url = String(serverUrl) + "ambiente";
+        
+        http.begin(url);
+        http.addHeader("Content-Type", "application/json");
+        
+        String jsonData = "{\"temperatura\":" + String(temperatura, 2) + 
+                         ",\"humidade\":" + String(humidade, 2) + 
+                         ",\"luminosidade\":" + String(luminosidade) + "}";
+        Serial.println("\n=== Enviando dados do DHT22 ===");
+        Serial.println("URL: " + url);
+        Serial.println("Dados: " + jsonData);
+        
+        int httpCode = http.POST(jsonData);
+        
+        if (httpCode == HTTP_CODE_OK) {
+            Serial.println("Dados enviados com sucesso!");
+        } else {
+            Serial.print("Erro ao enviar dados do DHT22. Código: ");
+            Serial.println(httpCode);
+        }
+        
+        http.end();
+    }
+}
+
+void lerDHT() {
+    unsigned long agora = millis();
+    if (agora - ultimaLeituraDHT >= intervaloLeituraDHT) {
+        temperatura = dht.readTemperature();
+        humidade = dht.readHumidity();
+        luminosidade = analogRead(LDR_PIN);  // Lê o valor do LDR
+
+        Serial.print("Temperatura: ");
+        Serial.print(temperatura);
+        Serial.print("°C, Humidade: ");
+        Serial.print(humidade);
+        Serial.print("%, Luminosidade: ");
+        Serial.println(luminosidade);
+        
+        if (!isnan(temperatura) && !isnan(humidade)) {
+            enviarDadosDHT();
+        }
+        
+        ultimaLeituraDHT = agora;
+    }
+}
+
 void loop() {
     unsigned long agora = millis();
+    
+    // Leitura do DHT22
+    lerDHT();
     
     if (!modoRegistroTag && agora - ultimaVerificacao >= intervaloVerificacao) {
         verificarSolicitacaoRegistro();

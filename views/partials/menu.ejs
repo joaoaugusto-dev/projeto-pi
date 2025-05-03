@@ -3,8 +3,7 @@
 <nav class="navbar navbar-expand-lg">
   <div class="container">
     <a class="navbar-brand" href="/" id="font-navbar">
-      <img src="../../images/icon_navbar.png" alt="Logo" width="40" height="40" class="d-inline-block align-text-center me-2">
-      <span class="text-white fw-bold">Sistema de Automação</span>
+      <img src="../../images/PackBag-Logo-Original-HOR.png" alt="Logo" class="logo-nav">
     </a>
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
@@ -20,18 +19,19 @@
         </li>
         
         <li class="nav-item font-control">
-          <button id="decreaseFontBtn" class="font-btn" title="Diminuir fonte">A-</button>
-          <button id="increaseFontBtn" class="font-btn" title="Aumentar fonte">A+</button>
+          <button id="decreaseFontBtn" class="font-btn" title="Diminuir fonte" onclick="decreaseFont()">A-</button>
+          <button id="increaseFontBtn" class="font-btn" title="Aumentar fonte" onclick="increaseFont()">A+</button>
         </li>
 
         <% if (!user) { %>
           <li class="nav-item">
-            <a class="nav-link btn btn-outline-light mx-2 px-4" href="/entrar">Entrar</a>
+            <a class="nav-link btn btn-outline-primary mx-2 px-4" href="/entrar">Entrar</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link btn btn-light text-primary mx-2 px-4" href="/cadastro">Cadastrar</a>
+            <a class="nav-link btn btn-primary mx-2 px-4" href="/cadastro">Cadastrar</a>
           </li>
-        <% } else { %>
+        <% } %>
+        <% if (user) { %>
           <li class="nav-item">
             <a class="nav-link" href="/preferencias">Preferências</a>
           </li>
@@ -45,13 +45,11 @@
             <div class="zoom-profile">
               <a href="/dados">
                 <% if (funcionario && funcionario.foto) { %>
-                  <img class="rounded-circle border border-2 border-white" alt="foto-de-perfil" 
-                       src="/uploads/<%= funcionario.foto %>" 
-                       style="width: 40px; height: 40px; object-fit: cover;">
+                  <img class="profile-img-small rounded-circle border border-2 border-white" alt="foto-de-perfil" 
+                       src="/uploads/<%= funcionario.foto %>">
                 <% } else { %>
-                  <img class="rounded-circle border border-2 border-white" alt="foto-de-perfil" 
-                       src="/images/perfil-default.png" 
-                       style="width: 40px; height: 40px; object-fit: cover;">
+                  <img class="profile-img-small rounded-circle border border-2 border-white" alt="foto-de-perfil" 
+                       src="/images/perfil-default.png">
                 <% } %>
               </a>
             </div>
@@ -109,13 +107,17 @@
     color: #ffffff;
   }
 
+  [data-theme="dark"] .text-muted {
+    color: #e0e0e0 !important;
+  }
+
   [data-theme="high-contrast"] {
     background-color: #000000;
     color: #ffffff;
   }
 
   [data-theme="high-contrast"] .navbar {
-    background-color: #000000 !important;
+    background-color: #000 !important;
     border-bottom: 2px solid #ffffff;
   }
 
@@ -194,12 +196,48 @@
   }
 
   .navbar {
+    background-color: #FFFFFF !important;
     padding: 0.8rem 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
 
   .nav-link {
+    color: #EB6A00 !important;
     position: relative;
     font-weight: 500;
+  }
+
+  .font-control button,
+  .theme-control button {
+    color: #EB6A00;
+    border-color: #EB6A00;
+  }
+
+  .theme-btn:hover {
+    background-color: rgba(235,106,0,0.1);
+  }
+
+  [data-theme="dark"] .navbar {
+    background-color: #1a1a1a !important;
+  }
+
+  [data-theme="dark"] .nav-link,
+  [data-theme="dark"] .font-control button,
+  [data-theme="dark"] .theme-control button {
+    color: #FFFFFF !important;
+    border-color: #FFFFFF;
+  }
+
+  [data-theme="dark"] .nav-link:hover {
+    color: #ff8533 !important;
+  }
+
+  [data-theme="dark"] .navbar .nav-link:hover {
+    color: #ff8533 !important;
+  }
+
+  [data-theme="high-contrast"] .navbar {
+    background-color: #1a1a1a !important;
   }
 
   .nav-link::after {
@@ -216,6 +254,71 @@
 
   .nav-link:hover::after {
     width: 100%;
+  }
+
+  .navbar .btn-outline-primary {
+    background-color: #FFFFFF;
+    border-color: #EB6A00;
+    color: #EB6A00;
+  }
+
+  .navbar .btn-outline-primary:hover {
+    background-color: #EB6A00;
+    color: #FFFFFF;
+  }
+
+  .navbar .btn-outline-secondary {
+    background-color: transparent;
+    border: 2px solid #EB6A00;
+    color: #EB6A00;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .navbar .btn-outline-secondary:hover {
+    background-color: rgba(235,106,0,0.1);
+    border-color: #EB6A00;
+    color: #EB6A00;
+    transform: translateY(-2px);
+  }
+
+  .navbar .btn-primary {
+    background-color: #EB6A00;
+    border: 2px solid #EB6A00;
+    color: #FFFFFF;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .navbar .btn-primary:hover {
+    background-color: #ff8533;
+    border-color: #ff8533;
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(235,106,0,0.2);
+  }
+
+  .logo-nav {
+    width: 190px;
+  }
+
+  .profile-img-small {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+  }
+
+  .navbar-brand {
+    background-color: #FFFFFF;
+    padding: 8px 16px;
+    border-radius: 12px;
+  }
+
+  [data-theme="dark"] .navbar-brand,
+  [data-theme="high-contrast"] .navbar-brand {
+    background-color: #FFFFFF;
+    padding: 8px 16px;
+    border-radius: 12px;
   }
 </style>
 

@@ -6,11 +6,11 @@
         <% if (!user) { %>
             <div class="row align-items-center justify-content-between">
                 <div class="col-md-6 mb-4 mb-md-0">
-                    <h1 class="display-4 fw-bold mb-4" style="color: var(--primary-color)">Sistema de Automação Inteligente</h1>
+                    <h1 class="display-4 fw-bold mb-4 text-primary">Sistema de Automação Inteligente</h1>
                     <p class="lead mb-4">Controle automático de iluminação e temperatura personalizado para cada usuário.</p>
                     <div class="d-flex gap-3">
-                        <a href="/entrar" class="btn btn-primary btn-lg px-4">Entrar</a>
-                        <a href="/cadastro" class="btn btn-outline-primary btn-lg px-4">Cadastrar</a>
+                        <a href="/entrar" class="btn btn-outline-primary btn-lg">Entrar</a>
+                        <a href="/cadastro" class="btn btn-primary btn-lg">Cadastrar</a>
                     </div>
                 </div>
                 <div class="col-md-5">
@@ -20,17 +20,15 @@
         <% } else { %>
             <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-custom hover-lift">
+                    <div class="card dashboard-card border-0 shadow-custom">
                         <div class="card-body text-center p-4">
                             <div class="mb-4">
                                 <% if (funcionario.foto) { %>
                                     <img src="/uploads/<%= funcionario.foto %>" alt="Foto de perfil" 
-                                         class="rounded-circle border border-3 border-primary" 
-                                         style="width: 120px; height: 120px; object-fit: cover;">
+                                         class="profile-img rounded-circle border border-3 border-primary">
                                 <% } else { %>
                                     <img src="/images/perfil-default.png" alt="Foto de perfil padrão" 
-                                         class="rounded-circle border border-3 border-primary" 
-                                         style="width: 120px; height: 120px; object-fit: cover;">
+                                         class="profile-img rounded-circle border border-3 border-primary">
                                 <% } %>
                             </div>
                             <h4 class="fw-bold mb-1"><%= funcionario.nome %> <%= funcionario.sobrenome %></h4>
@@ -43,25 +41,25 @@
                 <div class="col-md-8">
                     <div class="row g-4">
                         <div class="col-12">
-                            <div class="card border-0 shadow-custom hover-lift">
+                            <div class="card dashboard-card border-0 shadow-custom">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-4">Suas Preferências</h5>
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="d-flex align-items-center mb-3">
-                                                <i class="bi bi-thermometer-half fs-3 text-primary me-3"></i>
+                                                <i class="bi bi-thermometer-half stats-icon text-primary"></i>
                                                 <div>
-                                                    <small class="text-muted d-block">Temperatura Preferida</small>
-                                                    <h3 class="mb-0 fw-bold"><%= funcionario.temp_preferida %>°C</h3>
+                                                    <small class="stats-label d-block">Temperatura Preferida</small>
+                                                    <h3 class="main-stats mb-0"><%= funcionario.temp_preferida %>°C</h3>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="d-flex align-items-center mb-3">
-                                                <i class="bi bi-brightness-high fs-3 text-primary me-3"></i>
+                                                <i class="bi bi-brightness-high stats-icon text-primary"></i>
                                                 <div>
-                                                    <small class="text-muted d-block">Luminosidade Preferida</small>
-                                                    <h3 class="mb-0 fw-bold"><%= funcionario.lumi_preferida %> lux</h3>
+                                                    <small class="stats-label d-block">Luminosidade Preferida</small>
+                                                    <h3 class="main-stats mb-0"><%= funcionario.lumi_preferida %> lux</h3>
                                                 </div>
                                             </div>
                                         </div>
@@ -71,20 +69,20 @@
                         </div>
 
                         <div class="col-md-6">
-                            <div class="card border-0 shadow-custom hover-lift h-100">
+                            <div class="card dashboard-card border-0 shadow-custom h-100">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-3">Configurações Atuais</h5>
                                     <div class="mb-4">
-                                        <small class="text-muted d-block mb-1">Temperatura</small>
+                                        <small class="stats-label d-block mb-1">Temperatura</small>
                                         <div class="d-flex align-items-baseline">
-                                            <h2 class="mb-0 me-2"><span id="temp_atual">--</span>°C</h2>
-                                            <small class="text-muted">Média: <span id="temp_media">--</span>°C</small>
+                                            <h2 class="main-stats mb-0 me-2"><span id="temp_atual">--</span>°C</h2>
+                                            <small class="text-muted">Umidade: <span id="humid_atual">--</span>%</small>
                                         </div>
                                     </div>
                                     <div>
-                                        <small class="text-muted d-block mb-1">Luminosidade</small>
+                                        <small class="stats-label d-block mb-1">Luminosidade</small>
                                         <div class="d-flex align-items-baseline">
-                                            <h2 class="mb-0 me-2"><span id="lumi_atual">--</span> lux</h2>
+                                            <h2 class="main-stats mb-0 me-2"><span id="lumi_atual">--</span> lux</h2>
                                             <small class="text-muted">Média: <span id="lumi_media">--</span> lux</small>
                                         </div>
                                     </div>
@@ -93,7 +91,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <div class="card border-0 shadow-custom hover-lift h-100">
+                            <div class="card dashboard-card border-0 shadow-custom h-100">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-4">Ações Rápidas</h5>
                                     <div class="d-grid gap-3">
@@ -118,13 +116,24 @@
     
     <script>
         function atualizarDadosAmbiente() {
-            fetch('/api/ambiente-atual')
+            fetch('/esp32/ambiente')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('temp_atual').textContent = data.temperatura || '--';
-                    document.getElementById('lumi_atual').textContent = data.luminosidade || '--';
-                    document.getElementById('temp_media').textContent = data.temperatura_media || '--';
-                    document.getElementById('lumi_media').textContent = data.luminosidade_media || '--';
+                    const tempSpan = document.getElementById('temp_atual');
+                    const humidSpan = document.getElementById('humid_atual');
+                    const lumiSpan = document.getElementById('lumi_atual');
+                    const lumiMediaSpan = document.getElementById('lumi_media');
+                    
+                    if (tempSpan) {
+                        tempSpan.textContent = data.atualizado ? data.temperatura : '--';
+                        tempSpan.style.color = data.atualizado ? 'inherit' : '#999';
+                    }
+                    if (humidSpan) {
+                        humidSpan.textContent = data.atualizado ? data.humidade : '--';
+                        humidSpan.style.color = data.atualizado ? 'inherit' : '#999';
+                    }
+                    if (lumiSpan) lumiSpan.textContent = data.luminosidade || '--';
+                    if (lumiMediaSpan) lumiMediaSpan.textContent = data.luminosidade_media || '--';
                 })
                 .catch(error => console.error('Erro ao atualizar dados:', error));
         }

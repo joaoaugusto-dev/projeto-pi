@@ -1,3 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link href="/css/styles.css" rel="stylesheet">
+</head>
 <%- include('partials/header.ejs') %>
 <%- include('partials/menu.ejs') %>
 
@@ -10,7 +19,7 @@
             <h2 class="font-scale">Login</h2>
           </div>
           <div class="card-body">
-            <form id="loginForm">
+            <form id="loginForm" class="fade-in-up">
               <div class="mb-3">
                 <label for="matricula" class="form-label font-scale">Matrícula</label>
                 <input type="number" class="form-control font-scale" id="matricula" name="matricula" required>
@@ -22,6 +31,9 @@
               <div class="d-grid">
                 <button type="submit" class="btn btn-primary font-scale">Entrar</button>
               </div>
+              <div class="text-center mt-3">
+                <a href="/cadastro" class="btn btn-outline-primary">Cadastre-se</a>
+              </div>
               <div id="errorMessage" class="text-danger mt-3 font-scale"></div>
             </form>
           </div>
@@ -31,19 +43,19 @@
   </div>
 
   <script>
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-
-      const matricula = document.getElementById('matricula').value;
-      const senha = document.getElementById('senha').value;
-
+      
       try {
         const response = await fetch('/auth/login', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ matricula, senha })
+          body: JSON.stringify({
+            matricula: document.getElementById('matricula').value,
+            senha: document.getElementById('senha').value
+          })
         });
 
         if (response.ok) {
@@ -62,3 +74,4 @@
   <%- include('partials/footer.ejs') %>
   <%- include('./partials/vlibras.ejs') %>
 </body>
+</html>

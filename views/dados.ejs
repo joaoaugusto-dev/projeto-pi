@@ -12,9 +12,9 @@
                     <div class="card-body">
                         <div class="text-center mb-4">
                             <% if (funcionario.foto) { %>
-                                <img src="/uploads/<%= funcionario.foto %>" alt="Foto de perfil" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                                <img src="/uploads/<%= funcionario.foto %>" alt="Foto de perfil" class="profile-img rounded-circle">
                             <% } else { %>
-                                <img src="/images/perfil-default.png" alt="Foto de perfil padrão" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                                <img src="/images/perfil-default.png" alt="Foto de perfil padrão" class="profile-img rounded-circle">
                             <% } %>
                         </div>
 

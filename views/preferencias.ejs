@@ -2,267 +2,163 @@
 <%- include('partials/menu.ejs') %>
 
 <body>
-    <!-- Modal de Cadastro de Tag -->
-    <div class="modal fade" id="tagModal" tabindex="-1" aria-labelledby="tagModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="tagModalLabel">Cadastro de Tag NFC</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <div id="tagStatus">
-                        <div id="statusIcon" class="mb-3">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Carregando...</span>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center font-scale">Gerenciar Preferências</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="ambiente-container mb-4">
+                            <h5 class="font-scale mb-3">Ambiente Atual</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-thermometer-half stats-icon text-primary"></i>
+                                        <div>
+                                            <small class="stats-label d-block">Temperatura</small>
+                                            <div class="d-flex align-items-baseline">
+                                                <h3 class="main-stats mb-0 me-2"><span id="temp_atual">--</span>°C</h3>
+                                                <small class="text-muted">Umidade: <span id="humid_atual">--</span>%</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-brightness-high stats-icon text-primary"></i>
+                                        <div>
+                                            <small class="stats-label d-block">Luminosidade</small>
+                                            <div class="d-flex align-items-baseline">
+                                                <h3 class="main-stats mb-0 me-2"><span id="lumi_atual">--</span> lux</h3>
+                                                <small class="text-muted">Média: <span id="lumi_media">--</span> lux</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <p class="mb-2" id="tagMessage">Conectando ao ESP32...</p>
-                        <p class="text-muted small" id="tagDetails"></p>
+
+                        <form id="preferencesForm">
+                            <div class="mb-4">
+                                <label for="tempRange" class="form-label font-scale">Temperatura Preferida</label>
+                                <input type="range" class="form-range" id="tempRange" min="16" max="32" step="0.5" 
+                                       value="<%= funcionario.temp_preferida %>">
+                                <div class="range-value" id="tempValue"><%= funcionario.temp_preferida %>°C</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="lumiRange" class="form-label font-scale">Luminosidade Preferida</label>
+                                <input type="range" class="form-range" id="lumiRange" min="0" max="1000" step="50" 
+                                       value="<%= funcionario.lumi_preferida %>">
+                                <div class="range-value" id="lumiValue"><%= funcionario.lumi_preferida %> lux</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="font-scale mb-3">Tag NFC</h5>
+                                        <p class="text-muted font-scale mb-3">
+                                            Aproxime sua tag NFC do leitor para registrá-la
+                                        </p>
+                                        <div id="tagStatus" class="text-center">
+                                            <% if (funcionario.tag_nfc) { %>
+                                                <div id="statusIcon" class="text-success">
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                </div>
+                                                <div id="tagMessage">Tag registrada com sucesso!</div>
+                                                <div id="tagDetails">ID: <%= funcionario.tag_nfc %></div>
+                                            <% } else { %>
+                                                <div id="statusIcon" class="text-muted">
+                                                    <i class="bi bi-credit-card"></i>
+                                                </div>
+                                                <div id="tagMessage">Nenhuma tag registrada</div>
+                                                <div id="tagDetails">Aproxime uma tag para registrar</div>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary font-scale">Salvar Preferências</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="container-fluid px-0">
-        <div class="container mt-5">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="text-center font-scale">Minhas Preferências</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="row mb-4">
-                                <div class="col-md-6">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <h5 class="font-scale">Ambiente Atual</h5>
-                                            <p class="mb-2 font-scale">Temperatura Atual: <span id="temp_atual">--°C</span></p>
-                                            <p class="font-scale">Temperatura Setada: <span id="temp_setada">--°C</span></p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <h5 class="font-scale">Minhas Preferências</h5>
-                                            <p class="mb-2 font-scale">Temperatura: <%= funcionario.temp_preferida %>°C</p>
-                                            <p class="font-scale">Luminosidade: <%= funcionario.lumi_preferida %> lux</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <form id="preferencesForm">
-                                <div class="mb-4">
-                                    <label for="temp_preferida" class="form-label font-scale">Temperatura Preferida (°C)</label>
-                                    <input type="range" class="form-range" id="temp_preferida" name="temp_preferida" 
-                                        min="16" max="30" step="0.5" value="<%= funcionario.temp_preferida %>">
-                                    <div class="text-center">
-                                        <span id="temp_value"><%= funcionario.temp_preferida %>°C</span>
-                                    </div>
-                                </div>
-
-                                <div class="mb-4">
-                                    <label for="lumi_preferida" class="form-label">Luminosidade Preferida (lux)</label>
-                                    <input type="range" class="form-range" id="lumi_preferida" name="lumi_preferida"
-                                        min="100" max="1000" step="50" value="<%= funcionario.lumi_preferida %>">
-                                    <div class="text-center">
-                                        <span id="lumi_value"><%= funcionario.lumi_preferida %> lux</span>
-                                    </div>
-                                </div>
-
-                                <div class="mb-4">
-                                    <label for="tag_nfc" class="form-label">Tag NFC</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="tag_nfc" name="tag_nfc"
-                                            value="<%= funcionario.tag_nfc || '' %>" readonly>
-                                        <button type="button" class="btn btn-primary" id="novaTagBtn">Nova Tag</button>
-                                    </div>
-                                </div>
-
-                                <div class="text-center mt-4">
-                                    <button type="submit" class="btn btn-primary">Salvar Preferências</button>
-                                </div>
-                            </form>
-                            <div id="errorMessage" class="text-danger mt-3"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <%- include('partials/footer.ejs') %>
-    </div>
-
+    <%- include('partials/footer.ejs') %>
     <%- include('./partials/vlibras.ejs') %>
 
     <script>
-        // Função para atualizar as temperaturas
-        function atualizarTemperaturas() {
-            // Aqui você deve implementar a lógica para buscar as temperaturas do servidor
-            document.getElementById('temp_atual').textContent = '25°C';
-            document.getElementById('temp_setada').textContent = '23°C';
-        }
+        const tempRange = document.getElementById('tempRange');
+        const lumiRange = document.getElementById('lumiRange');
+        const tempValue = document.getElementById('tempValue');
+        const lumiValue = document.getElementById('lumiValue');
 
-        // Atualizar temperaturas a cada 30 segundos
-        atualizarTemperaturas();
-        setInterval(atualizarTemperaturas, 30000);
-
-        document.getElementById('temp_preferida').addEventListener('input', function() {
-            document.getElementById('temp_value').textContent = this.value + '°C';
+        tempRange.addEventListener('input', function() {
+            tempValue.textContent = this.value + '°C';
         });
 
-        document.getElementById('lumi_preferida').addEventListener('input', function() {
-            document.getElementById('lumi_value').textContent = this.value + ' lux';
+        lumiRange.addEventListener('input', function() {
+            lumiValue.textContent = this.value + ' lux';
         });
 
-        document.getElementById('preferencesForm').addEventListener('submit', async (e) => {
+        document.getElementById('preferencesForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const temperatura = document.getElementById('temp_preferida').value;
-            const luminosidade = document.getElementById('lumi_preferida').value;
-            const tagNFC = document.getElementById('tag_nfc').value;
-
             try {
-                const response = await fetch('/preferencias/atualizar', {
+                const response = await fetch('/preferencias', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        temp_preferida: temperatura,
-                        lumi_preferida: luminosidade,
-                        tag_nfc: tagNFC
+                        temp_preferida: parseFloat(tempRange.value),
+                        lumi_preferida: parseInt(lumiRange.value)
                     })
                 });
 
                 if (response.ok) {
-                    window.location.href = '/dados';
+                    window.location.href = '/';
                 } else {
                     const data = await response.json();
-                    document.getElementById('errorMessage').textContent = data.message || 'Erro ao atualizar preferências';
+                    alert(data.message || 'Erro ao salvar preferências');
                 }
             } catch (error) {
                 console.error('Erro:', error);
-                document.getElementById('errorMessage').textContent = 'Erro ao atualizar preferências';
+                alert('Erro ao salvar preferências');
             }
         });
 
-        let tagModal = null;
-        let aguardandoTag = false;
-        let modoRegistro = false;
-
-        document.addEventListener('DOMContentLoaded', function() {
-            tagModal = new bootstrap.Modal(document.getElementById('tagModal'));
-        });
-
-        document.getElementById('novaTagBtn').addEventListener('click', async function() {
-            try {
-                tagModal.show();
-                document.getElementById('tagMessage').textContent = 'Conectando ao ESP32...';
-                document.getElementById('tagDetails').textContent = '';
-                document.getElementById('statusIcon').innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div>';
-
-                const response = await fetch(`/esp32/iniciar-cadastro-tag/<%= funcionario.matricula %>`, {
-                    method: 'POST'
-                });
-
-                if (response.ok) {
-                    aguardandoTag = true;
-                    modoRegistro = false;
-                    document.getElementById('tagMessage').textContent = 'ESP32 conectado! Iniciando modo de registro...';
-                    document.getElementById('tagDetails').textContent = 'Matrícula: <%= funcionario.matricula %>';
-                    document.getElementById('statusIcon').innerHTML = '<i class="bi bi-broadcast text-success" style="font-size: 2rem;"></i>';
-                    iniciarVerificacaoTag();
-                } else {
-                    const data = await response.json();
-                    document.getElementById('tagMessage').textContent = data.message || 'Erro ao conectar com ESP32';
-                    document.getElementById('statusIcon').innerHTML = '<i class="bi bi-x-circle text-danger" style="font-size: 2rem;"></i>';
-                    aguardandoTag = false;
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                document.getElementById('tagMessage').textContent = 'Erro ao conectar com ESP32';
-                document.getElementById('statusIcon').innerHTML = '<i class="bi bi-x-circle text-danger" style="font-size: 2rem;"></i>';
-                aguardandoTag = false;
-            }
-        });
-
-        async function verificarNovaTag() {
-            if (!aguardandoTag) return;
-
-            try {
-                // Primeiro verifica se o ESP está em modo de cadastro
-                const responseEsp = await fetch('/esp32/tag-status/pendente');
-                const dataEsp = await responseEsp.json();
-
-                if (dataEsp.status === 'aguardando' && !modoRegistro) {
-                    modoRegistro = true;
-                    document.getElementById('tagMessage').textContent = 'Aproxime sua tag do leitor...';
-                    document.getElementById('statusIcon').innerHTML = '<i class="bi bi-broadcast text-primary" style="font-size: 2rem;"></i>';
-                    return;
-                }
-
-                // Só verifica o status da matrícula se já estiver em modo de registro
-                if (modoRegistro) {
-                    const response = await fetch(`/esp32/tag-status/<%= funcionario.matricula %>`);
-                    const data = await response.json();
-
-                    if (data.status === 'concluido' && data.tag_nfc) {
-                        document.getElementById('statusIcon').innerHTML = '<i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>';
-                        document.getElementById('tagMessage').textContent = 'Tag cadastrada com sucesso!';
-                        document.getElementById('tag_nfc').value = data.tag_nfc;
-                        aguardandoTag = false;
-                        modoRegistro = false;
-                        setTimeout(() => {
-                            tagModal.hide();
-                            window.location.reload();
-                        }, 1500);
+        function atualizarDadosAmbiente() {
+            fetch('/esp32/ambiente')
+                .then(response => response.json())
+                .then(data => {
+                    const tempSpan = document.getElementById('temp_atual');
+                    const humidSpan = document.getElementById('humid_atual');
+                    const lumiSpan = document.getElementById('lumi_atual');
+                    const lumiMediaSpan = document.getElementById('lumi_media');
+                    
+                    if (tempSpan) {
+                        tempSpan.textContent = data.atualizado ? data.temperatura : '--';
+                        tempSpan.style.color = data.atualizado ? 'inherit' : '#999';
                     }
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-                aguardandoTag = false;
-                modoRegistro = false;
-                document.getElementById('statusIcon').innerHTML = '<i class="bi bi-x-circle text-danger" style="font-size: 2rem;"></i>';
-                document.getElementById('tagMessage').textContent = 'Erro ao verificar status da tag';
-                setTimeout(() => tagModal.hide(), 1500);
-            }
+                    if (humidSpan) {
+                        humidSpan.textContent = data.atualizado ? data.humidade : '--';
+                        humidSpan.style.color = data.atualizado ? 'inherit' : '#999';
+                    }
+                    if (lumiSpan) lumiSpan.textContent = data.luminosidade || '--';
+                    if (lumiMediaSpan) lumiMediaSpan.textContent = data.luminosidade_media || '--';
+                })
+                .catch(error => console.error('Erro ao atualizar dados:', error));
         }
 
-        function iniciarVerificacaoTag() {
-            verificarNovaTag(); // Verifica imediatamente
-            const intervalo = setInterval(() => {
-                if (!aguardandoTag) {
-                    clearInterval(intervalo);
-                    return;
-                }
-                verificarNovaTag();
-            }, 2000);
-
-            // Fecha o modal após 30 segundos se não houver resposta
-            setTimeout(async () => {
-                if (aguardandoTag) {
-                    aguardandoTag = false;
-                    modoRegistro = false;
-                    document.getElementById('tagMessage').textContent = 'Tempo limite excedido';
-                    document.getElementById('statusIcon').innerHTML = '<i class="bi bi-x-circle text-warning" style="font-size: 2rem;"></i>';
-                    
-                    // Cancela o registro de tag no ESP32
-                    try {
-                        await fetch(`/esp32/cancelar-registro-tag/<%= funcionario.matricula %>`, {
-                            method: 'POST'
-                        });
-                    } catch (error) {
-                        console.error('Erro ao cancelar registro de tag:', error);
-                    }
-                    
-                    setTimeout(() => tagModal.hide(), 1500);
-                }
-            }, 30000);
-        }
+        atualizarDadosAmbiente();
+        setInterval(atualizarDadosAmbiente, 30000);
     </script>
 </body>

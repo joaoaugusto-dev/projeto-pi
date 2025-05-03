@@ -11,6 +11,13 @@ let tagsRegistradas = new Map();
 // Adicionar variável para controlar tags que foram realmente registradas
 let tagsConfirmadas = new Map();
 
+// Variáveis para armazenar os dados do ambiente
+let ultimaLeitura = {
+    temperatura: null,
+    humidade: null,
+    timestamp: null
+};
+
 // Rota para consultar usuário por tag NFC
 router.get('/tag/:tagNfc', async (req, res) => {
     const { tagNfc } = req.params;
@@ -255,6 +262,35 @@ router.post('/cancelar-registro-tag/:matricula', async (req, res) => {
         console.error(err);
         res.status(500).json({ message: 'Erro ao cancelar registro de tag' });
     }
+});
+
+// Rota para receber dados do ambiente
+router.post('/ambiente', (req, res) => {
+    const { temperatura, humidade } = req.body;
+    
+    if (temperatura !== undefined && humidade !== undefined) {
+        ultimaLeitura = {
+            temperatura,
+            humidade,
+            timestamp: Date.now()
+        };
+        res.json({ success: true });
+    } else {
+        res.status(400).json({ success: false, message: 'Dados incompletos' });
+    }
+});
+
+// Rota para buscar dados do ambiente
+router.get('/ambiente', (req, res) => {
+    // Se a última leitura for mais antiga que 1 minuto, considera como desatualizada
+    const agora = Date.now();
+    const dadosAtualizados = ultimaLeitura.timestamp && (agora - ultimaLeitura.timestamp) < 60000;
+    
+    res.json({
+        temperatura: dadosAtualizados ? ultimaLeitura.temperatura : null,
+        humidade: dadosAtualizados ? ultimaLeitura.humidade : null,
+        atualizado: dadosAtualizados
+    });
 });
 
 module.exports = router;

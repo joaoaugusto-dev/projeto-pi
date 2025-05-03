@@ -1,12 +1,19 @@
 // Update ambiente data
 function atualizarDadosAmbiente() {
-    fetch('/api/ambiente-atual')
+    fetch('/esp32/ambiente')
         .then(response => response.json())
         .then(data => {
-            document.getElementById('temp_atual')?.textContent = data.temperatura || '--';
-            document.getElementById('lumi_atual')?.textContent = data.luminosidade || '--';
-            document.getElementById('temp_media')?.textContent = data.temperatura_media || '--';
-            document.getElementById('lumi_media')?.textContent = data.luminosidade_media || '--';
+            const tempSpan = document.getElementById('temp_atual');
+            const humidSpan = document.getElementById('humid_atual');
+            
+            if (tempSpan) {
+                tempSpan.textContent = data.atualizado ? `${data.temperatura}°C` : '--°C';
+                tempSpan.style.color = data.atualizado ? 'inherit' : '#999';
+            }
+            if (humidSpan) {
+                humidSpan.textContent = data.atualizado ? `${data.humidade}%` : '--%';
+                humidSpan.style.color = data.atualizado ? 'inherit' : '#999';
+            }
         })
         .catch(error => console.error('Erro ao atualizar dados:', error));
 }

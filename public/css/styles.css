@@ -1,12 +1,12 @@
 /* Variáveis de cores do Packbag */
 :root {
-    --primary-color: #0056A4;
-    --secondary-color: #FF4E00;
-    --accent-color: #FFA500;
-    --text-color: #333333;
+    --primary-color: #EB6A00;
+    --secondary-color: #000000;
+    --accent-color: #E5E5E5;
+    --text-color: #000000;
     --background-light: #FFFFFF;
-    --background-dark: #F5F5F5;
-    --border-color: #E0E0E0;
+    --background-dark: #E5E5E5;
+    --border-color: #E5E5E5;
 }
 
 /* Estilos base responsivos */
@@ -42,9 +42,11 @@ input, select, textarea { font-size: inherit !important; }
 .font-control button {
     background: none;
     border: none;
-    color: #fff;
+    color: var(--primary-color);
     padding: 5px;
     cursor: pointer;
+    border-color: var(--primary-color);
+    background-color: transparent;
 }
 .font-control button:disabled {
     color: #666;
@@ -60,8 +62,8 @@ input, select, textarea { font-size: inherit !important; }
 }
 .theme-control button {
     background: none;
-    border: 1px solid #fff;
-    color: #fff;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
     padding: 5px 10px;
     cursor: pointer;
     border-radius: 4px;
@@ -70,6 +72,7 @@ input, select, textarea { font-size: inherit !important; }
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: transparent;
 }
 .theme-control button.active {
     background-color: #fff;
@@ -86,8 +89,28 @@ body {
 
 /* Navbar personalizada */
 .navbar {
-    background-color: var(--primary-color) !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: var(--background-light) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.navbar .nav-link {
+    color: var(--primary-color) !important;
+    font-weight: 500;
+}
+
+.navbar .nav-link:hover {
+    color: var(--secondary-color) !important;
+}
+
+.navbar .btn-outline-light {
+    border-color: #EB6A00;
+    color: #EB6A00;
+}
+
+.navbar .btn-light {
+    background-color: #EB6A00;
+    border-color: #EB6A00;
+    color: #FFFFFF;
 }
 
 .navbar-brand img {
@@ -107,17 +130,22 @@ body {
 
 /* Botões */
 .btn-primary {
-    background: linear-gradient(45deg, var(--primary-color), #0077cc);
-    border: none;
-    padding: 0.5rem 1.5rem;
-    border-radius: 5px;
-    font-weight: 500;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #FFFFFF !important;
 }
 
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,86,164,0.3);
+.btn-primary:focus {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #FFFFFF !important;
+}
+
+.btn-primary:hover,
+.btn-primary:active {
+    background-color: #ff8533 !important;
+    border-color: #ff8533 !important;
+    color: #FFFFFF !important;
 }
 
 .btn-secondary {
@@ -126,14 +154,21 @@ body {
 }
 
 .btn-outline-primary {
-    border: 2px solid var(--primary-color);
-    transition: all 0.2s ease;
+    background-color: transparent !important;
+    border-color: var(--primary-color) !important;
+    color: var(--primary-color) !important;
 }
 
-.btn-outline-primary:hover {
-    background: linear-gradient(45deg, var(--primary-color), #0077cc);
-    border-color: transparent;
-    transform: translateY(-2px);
+.btn-outline-primary:focus {
+    background-color: transparent !important;
+    border-color: var(--primary-color) !important;
+    color: var(--primary-color) !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:active {
+    background-color: var(--primary-color) !important;
+    color: #FFFFFF !important;
 }
 
 /* Cards */
@@ -174,9 +209,9 @@ body {
 /* Theme: Dark */
 [data-theme="dark"] {
     --text-color: #FFFFFF;
-    --background-light: #1A1A1A;
-    --background-dark: #2D2D2D;
-    --border-color: #404040;
+    --background-light: #000000;
+    --background-dark: #1A1A1A;
+    --border-color: #333333;
 }
 
 [data-theme="dark"] .navbar {
@@ -185,49 +220,67 @@ body {
 
 [data-theme="dark"] .card {
     background-color: var(--background-dark);
-    border-color: var(--border-color);
+    color: #FFFFFF;
 }
 
-[data-theme="dark"] .form-control {
-    background-color: var(--background-dark);
-    border-color: var(--border-color);
-    color: var(--text-color);
+[data-theme="dark"] .text-muted {
+    color: #e0e0e0 !important;
 }
 
-[data-theme="dark"] .navbar {
-    background-color: #000 !important;
-}
-[data-theme="dark"] .card {
-    background-color: #2d2d2d;
-    color: #ffffff;
-}
 [data-theme="dark"] .modal-content {
-    background-color: #2d2d2d;
-    color: #ffffff;
+    background-color: var(--background-dark);
+    color: #FFFFFF;
 }
-[data-theme="dark"] .modal-header {
-    border-bottom: 1px solid #404040;
-}
+
+[data-theme="dark"] .modal-header,
 [data-theme="dark"] .modal-footer {
-    border-top: 1px solid #404040;
+    border-color: var(--border-color);
 }
+
 [data-theme="dark"] input,
 [data-theme="dark"] select,
 [data-theme="dark"] textarea {
-    background-color: #333333;
-    color: #ffffff;
-    border-color: #404040;
+    background-color: #000000;
+    color: #FFFFFF;
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .btn-outline-primary {
+    background-color: transparent !important;
+    border-color: var(--primary-color) !important;
+    color: var(--primary-color) !important;
+}
+
+[data-theme="dark"] .btn-outline-primary:hover {
+    background-color: var(--primary-color) !important;
+    color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .theme-control button,
+[data-theme="dark"] .font-control button {
+    color: #FFFFFF;
+    border-color: #FFFFFF;
+}
+
+[data-theme="dark"] .navbar .nav-link:hover,
+[data-theme="dark"] .nav-link:hover {
+    color: var(--primary-color) !important;
 }
 
 /* Theme: High Contrast */
 [data-theme="high-contrast"] {
-    --primary-color: #FFFFFF;
-    --secondary-color: #FFFFFF;
+    --primary-color: #EB6A00;
     --text-color: #FFFFFF;
     --background-light: #000000;
     --background-dark: #000000;
     --border-color: #FFFFFF;
-    --accent-color: #FFFF00;
+    --accent-color: #E5E5E5;
 }
 
 [data-theme="high-contrast"] .navbar {
@@ -281,6 +334,33 @@ body {
     filter: invert(1) grayscale(100%) brightness(200%);
 }
 
+[data-theme="high-contrast"] .btn-primary,
+[data-theme="high-contrast"] .btn-outline-primary {
+    background-color: #000000 !important;
+    border: 2px solid #FFFFFF !important;
+    color: #FFFFFF !important;
+}
+
+[data-theme="high-contrast"] .btn-primary:hover,
+[data-theme="high-contrast"] .btn-outline-primary:hover {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+}
+
+[data-theme="high-contrast"] .theme-control button,
+[data-theme="high-contrast"] .font-control button {
+    color: #FFFFFF;
+    border-color: #FFFFFF;
+}
+
+[data-theme="high-contrast"] .nav-link {
+    color: #FFFFFF !important;
+}
+
+[data-theme="high-contrast"] .nav-link:hover {
+    color: #FFFF00 !important;
+}
+
 /* Estilos para o gráfico */
 .chart-container {
     position: relative;
@@ -297,7 +377,7 @@ body {
 
 /* Estilos para o upload de foto */
 .upload-box {
-    border: 2px dashed #ccc;
+    border: 2px dashed var(--border-color);
     border-radius: 4px;
     padding: 20px;
     text-align: center;
@@ -376,5 +456,173 @@ body {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* Classes específicas */
+.chart-container {
+    position: relative;
+    margin: auto;
+    height: 80vh;
+    width: 80vw;
+}
+
+.scrollable-table {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Upload de imagem */
+.upload-box {
+    border: 2px dashed var(--border-color);
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    margin: 20px 0;
+    cursor: pointer;
+}
+
+.upload-box:hover {
+    border-color: #666;
+}
+
+.upload-box img {
+    max-width: 200px;
+    max-height: 200px;
+    margin-bottom: 10px;
+}
+
+/* Estilos de Tag */
+.profile-img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+}
+
+.profile-img-small {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+/* Tamanhos padrão de imagem */
+.logo-nav {
+    width: 190px;
+}
+
+/* Elementos de formulário */
+.form-range {
+    width: 100%;
+}
+
+.range-value {
+    text-align: center;
+    margin-top: 5px;
+}
+
+/* Modal específico */
+.modal .modal-body {
+    text-align: center;
+}
+
+#tagStatus {
+    padding: 20px;
+}
+
+#statusIcon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+#tagMessage {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+#tagDetails {
+    font-size: 0.9em;
+    color: var(--text-muted);
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    height: 100%;
+    transition: transform 0.2s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+.stats-icon {
+    font-size: 2rem;
+    margin-right: 15px;
+}
+
+/* Validação de senha */
+.password-requirements {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.password-requirements li {
+    margin: 5px 0;
+    transition: color 0.3s;
+}
+
+#passwordMatch {
+    margin-top: 5px;
+    transition: color 0.3s;
+}
+
+/* Principais medidas */
+.main-stats {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.stats-label {
+    color: var(--text-muted);
+    font-size: 0.9em;
+}
+
+/* Container do ambiente */
+.ambiente-container {
+    background: var(--background-light);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .card-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .main-stats {
+        font-size: 1.2em;
+    }
+
+    .profile-img {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+@media (max-width: 576px) {
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .stats-icon {
+        font-size: 1.5rem;
     }
 }
