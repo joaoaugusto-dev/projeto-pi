@@ -50,30 +50,6 @@ async function handleLoginSubmit(e) {
     }
 }
 
-async function handleRegisterSubmit(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-
-    try {
-        const response = await fetch('/auth/register', {
-            method: 'POST',
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-            window.location.href = '/';
-        } else {
-            const errorMessage = data.message || 'Erro ao processar o cadastro';
-            document.getElementById('errorMessage').textContent = errorMessage;
-        }
-    } catch (error) {
-        console.error('Erro:', error);
-        document.getElementById('errorMessage').textContent = 'Erro ao processar o cadastro';
-    }
-}
-
 async function handleLogout() {
     try {
         const response = await fetch('/auth/logout', {
@@ -95,17 +71,12 @@ async function handleLogout() {
 // Setup event listeners
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
     const senha = document.getElementById('f_senha');
     const confirmarSenha = document.getElementById('confirmasenha');
     const confirmLogoutButton = document.getElementById('confirmLogoutButton');
 
     if (loginForm) {
         loginForm.addEventListener('submit', handleLoginSubmit);
-    }
-
-    if (registerForm) {
-        registerForm.addEventListener('submit', handleRegisterSubmit);
     }
 
     if (senha) {

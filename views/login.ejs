@@ -26,7 +26,12 @@
               </div>
               <div class="mb-3">
                 <label for="senha" class="form-label font-scale">Senha</label>
-                <input type="password" class="form-control font-scale" id="senha" name="senha" required>
+                <div class="password-field">
+                  <input type="password" class="form-control font-scale" id="senha" name="senha" required>
+                  <button type="button" class="password-toggle" id="togglePassword">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
               </div>
               <div class="d-grid">
                 <button type="submit" class="btn btn-primary font-scale">Entrar</button>
@@ -68,6 +73,17 @@
         console.error('Erro:', error);
         document.getElementById('errorMessage').textContent = 'Erro ao fazer login';
       }
+    });
+
+    // Lógica para mostrar/ocultar senha
+    const togglePassword = document.getElementById('togglePassword');
+    const senha = document.getElementById('senha');
+
+    togglePassword.addEventListener('click', function() {
+      const type = senha.getAttribute('type') === 'password' ? 'text' : 'password';
+      senha.setAttribute('type', type);
+      this.querySelector('i').classList.toggle('bi-eye');
+      this.querySelector('i').classList.toggle('bi-eye-slash');
     });
   </script>
 

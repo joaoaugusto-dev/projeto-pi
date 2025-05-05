@@ -1,0 +1,82 @@
+<%- include('partials/header.ejs') %>
+<%- include('partials/menu.ejs') %>
+
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="text-center mb-0">Preferências de Ambiente</h2>
+        </div>
+        <div class="card-body">
+          <form id="preferencesForm">
+            <div class="ambiente-container">
+              <h4 class="mb-4">Temperatura</h4>
+              <div class="mb-3">
+                <label for="temp_preferida" class="form-label">Temperatura Preferida (°C)</label>
+                <input type="number" class="form-control" id="temp_preferida" name="temp_preferida" 
+                       value="<%= funcionario.temp_preferida %>" min="16" max="30" required>
+                <div class="form-text">Escolha uma temperatura entre 16°C e 30°C</div>
+              </div>
+            </div>
+
+            <div class="ambiente-container">
+              <h4 class="mb-4">Luminosidade</h4>
+              <div class="mb-3">
+                <label for="lumi_preferida" class="form-label">Luminosidade Preferida (lux)</label>
+                <input type="number" class="form-control" id="lumi_preferida" name="lumi_preferida" 
+                       value="<%= funcionario.lumi_preferida %>" min="300" max="750" required>
+                <div class="form-text">Escolha uma luminosidade entre 300 e 750 lux</div>
+              </div>
+            </div>
+
+            <div class="text-center mt-4">
+              <button type="submit" class="btn btn-primary">Salvar Preferências</button>
+            </div>
+            <div id="errorMessage" class="text-danger mt-3 text-center"></div>
+            <div id="successMessage" class="text-success mt-3 text-center"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('preferencesForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const errorDiv = document.getElementById('errorMessage');
+  const successDiv = document.getElementById('successMessage');
+  errorDiv.textContent = '';
+  successDiv.textContent = '';
+
+  const formData = {
+    temp_preferida: document.getElementById('temp_preferida').value,
+    lumi_preferida: document.getElementById('lumi_preferida').value
+  };
+
+  try {
+    const response = await fetch('/preferences/update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      successDiv.textContent = 'Preferências atualizadas com sucesso!';
+    } else {
+      errorDiv.textContent = data.message || 'Erro ao atualizar preferências';
+    }
+  } catch (error) {
+    console.error('Erro:', error);
+    errorDiv.textContent = 'Erro ao atualizar preferências';
+  }
+});
+</script>
+
+<%- include('partials/footer.ejs') %>
+<%- include('./partials/vlibras.ejs') %>

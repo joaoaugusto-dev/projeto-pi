@@ -20,15 +20,15 @@
         <% } else { %>
             <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="card dashboard-card border-0 shadow-custom">
+                    <div class="card dashboard-card">
                         <div class="card-body text-center p-4">
                             <div class="mb-4">
                                 <% if (funcionario.foto) { %>
                                     <img src="/uploads/<%= funcionario.foto %>" alt="Foto de perfil" 
-                                         class="profile-img rounded-circle border border-3 border-primary">
+                                         class="profile-img rounded-circle border border-3">
                                 <% } else { %>
                                     <img src="/images/perfil-default.png" alt="Foto de perfil padrão" 
-                                         class="profile-img rounded-circle border border-3 border-primary">
+                                         class="profile-img rounded-circle border border-3">
                                 <% } %>
                             </div>
                             <h4 class="fw-bold mb-1"><%= funcionario.nome %> <%= funcionario.sobrenome %></h4>
@@ -41,13 +41,13 @@
                 <div class="col-md-8">
                     <div class="row g-4">
                         <div class="col-12">
-                            <div class="card dashboard-card border-0 shadow-custom">
+                            <div class="card dashboard-card">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-4">Suas Preferências</h5>
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="d-flex align-items-center mb-3">
-                                                <i class="bi bi-thermometer-half stats-icon text-primary"></i>
+                                                <i class="bi bi-thermometer-half stats-icon"></i>
                                                 <div>
                                                     <small class="stats-label d-block">Temperatura Preferida</small>
                                                     <h3 class="main-stats mb-0"><%= funcionario.temp_preferida %>°C</h3>
@@ -56,7 +56,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="d-flex align-items-center mb-3">
-                                                <i class="bi bi-brightness-high stats-icon text-primary"></i>
+                                                <i class="bi bi-brightness-high stats-icon"></i>
                                                 <div>
                                                     <small class="stats-label d-block">Luminosidade Preferida</small>
                                                     <h3 class="main-stats mb-0"><%= funcionario.lumi_preferida %> lux</h3>
@@ -69,7 +69,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <div class="card dashboard-card border-0 shadow-custom h-100">
+                            <div class="card dashboard-card h-100">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-3">Configurações Atuais</h5>
                                     <div class="mb-4">
@@ -91,7 +91,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <div class="card dashboard-card border-0 shadow-custom h-100">
+                            <div class="card dashboard-card h-100">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-4">Ações Rápidas</h5>
                                     <div class="d-grid gap-3">
@@ -113,7 +113,7 @@
 
     <%- include('partials/footer.ejs') %>
     <%- include('./partials/vlibras.ejs') %>
-    
+
     <script>
         function atualizarDadosAmbiente() {
             fetch('/esp32/ambiente')
