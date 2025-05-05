@@ -58,12 +58,13 @@ router.post('/atualizar/:matricula', async (req, res) => {
 });
 
 router.post('/ambiente', (req, res) => {
-    const { temperatura, humidade } = req.body;
+    const { temperatura, humidade, luminosidade } = req.body;
     
-    if (temperatura !== undefined && humidade !== undefined) {
+    if (temperatura !== undefined && humidade !== undefined && luminosidade !== undefined) {
         ultimaLeitura = {
             temperatura,
             humidade,
+            luminosidade,
             timestamp: Date.now()
         };
         res.json({ success: true });
@@ -79,6 +80,7 @@ router.get('/ambiente', (req, res) => {
     res.json({
         temperatura: dadosAtualizados ? ultimaLeitura.temperatura : null,
         humidade: dadosAtualizados ? ultimaLeitura.humidade : null,
+        luminosidade: dadosAtualizados ? ultimaLeitura.luminosidade : null,
         atualizado: dadosAtualizados
     });
 });

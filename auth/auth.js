@@ -7,6 +7,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const uuid = require('uuid');
 
 function obterProximoNumeroSequencial() {
     const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
@@ -25,13 +26,6 @@ function obterProximoNumeroSequencial() {
     });
 
     return maiorNumero + 1;
-}
-
-async function gerarMatricula() {
-    const ultimoFuncionario = await Funcionarios.findOne({
-        order: [['matricula', 'DESC']]
-    });
-    return ultimoFuncionario ? ultimoFuncionario.matricula + 1 : 1000;
 }
 
 const register = async (req, res) => {
@@ -131,12 +125,10 @@ const storage = multer.diskStorage({
         cb(null, './public/uploads/');
     },
     filename: function (req, file, cb) {
-        const numeroSequencial = obterProximoNumeroSequencial();
-        const extensao = path.extname(file.originalname);
-        const nomeArquivo = `perfil-${numeroSequencial}${extensao}`;
+        const nomeArquivo = `perfil-${uuid.v4()}${path.extname(file.originalname)}`;
         console.log(`Nome do arquivo gerado: ${nomeArquivo}`);
         cb(null, nomeArquivo);
-    }
+   }
 });
 
 const upload = multer({ storage });

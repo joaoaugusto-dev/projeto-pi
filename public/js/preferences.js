@@ -27,7 +27,7 @@ function atualizarDadosAmbiente() {
 
 document.addEventListener('DOMContentLoaded', function() {
     atualizarDadosAmbiente();
-    setInterval(atualizarDadosAmbiente, 30000);
+    setInterval(atualizarDadosAmbiente, 5000);
     setupPreferenceFormListeners();
 });
 

@@ -109,7 +109,7 @@ void setup() {
 void enviarDadosDHT() {
     if (!isnan(temperatura) && !isnan(humidade) && WiFi.status() == WL_CONNECTED) {
         HTTPClient http;
-        String url = String(serverUrl) + "ambiente";
+        String url = String(serverUrl) + "esp32/ambiente";
         
         http.begin(url);
         http.addHeader("Content-Type", "application/json");
