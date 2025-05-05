@@ -68,17 +68,66 @@ router.get('/preferencias', authenticateToken, async (req, res) => {
 router.post('/preferencias/atualizar', authenticateToken, async (req, res) => {
     try {
         const { temp_preferida, lumi_preferida, tag_nfc } = req.body;
-        await Funcionario.update({
-            temp_preferida,
-            lumi_preferida,
-            tag_nfc
-        }, {
-            where: { id: req.user.id }
+
+        // Validação dos dados
+        if (temp_preferida === undefined || lumi_preferida === undefined) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Temperatura e luminosidade são obrigatórios' 
+            });
+        }
+
+        // Conversão e validação dos valores
+        const temperatura = parseFloat(temp_preferida);
+        const luminosidade = parseInt(lumi_preferida);
+
+        if (isNaN(temperatura) || isNaN(luminosidade)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Valores de temperatura ou luminosidade inválidos' 
+            });
+        }
+
+        // Validação dos ranges
+        if (temperatura < 16 || temperatura > 32) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Temperatura deve estar entre 16°C e 32°C' 
+            });
+        }
+
+        if (luminosidade < 0 || luminosidade > 1000) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Luminosidade deve estar entre 0 e 1000 lux' 
+            });
+        }
+
+        // Atualização no banco
+        const funcionario = await Funcionario.findByPk(req.user.id);
+        if (!funcionario) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Funcionário não encontrado' 
+            });
+        }
+
+        await funcionario.update({
+            temp_preferida: temperatura,
+            lumi_preferida: luminosidade,
+            tag_nfc: tag_nfc || funcionario.tag_nfc // Mantém o valor atual se não fornecido
         });
-        res.json({ success: true });
+
+        res.json({ 
+            success: true, 
+            message: 'Preferências atualizadas com sucesso' 
+        });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: 'Erro ao atualizar preferências' });
+        console.error('Erro ao atualizar preferências:', err);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erro interno ao atualizar preferências' 
+        });
     }
 });
 

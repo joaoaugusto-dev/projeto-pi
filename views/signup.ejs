@@ -1,5 +1,6 @@
 <%- include('partials/header.ejs') %>
 <%- include('partials/menu.ejs') %>
+<%- include('partials/alertModal.ejs') %>
 
 <body>
   <div class="container mt-5">
@@ -95,14 +96,13 @@
         const data = await response.json();
 
         if (response.ok && data.success) {
-          window.location.href = '/';
+          showAlert('Sucesso', 'Cadastro realizado com sucesso! Você será redirecionado.');
+          setTimeout(() => window.location.href = '/', 2000);
         } else {
-          const errorMessage = data.message || 'Erro ao processar o cadastro';
-          document.getElementById('errorMessage').textContent = errorMessage;
+          showAlert('Erro no Cadastro', data.message || 'Erro ao processar o cadastro');
         }
       } catch (error) {
-        console.error('Erro:', error);
-        document.getElementById('errorMessage').textContent = 'Erro ao processar o cadastro';
+        handleError(error, 'Erro ao processar o cadastro');
       }
     });
 
@@ -153,8 +153,8 @@
     document.getElementById('file').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (file) {
-        if (file.size > 5 * 1024 * 1024) { // 5MB
-          alert('Arquivo muito grande. Tamanho máximo: 5MB');
+        if (file.size > 5 * 1024 * 1024) {
+          showAlert('Arquivo Muito Grande', 'O tamanho máximo permitido é 5MB');
           this.value = '';
           return;
         }

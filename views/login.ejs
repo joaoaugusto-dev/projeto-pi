@@ -9,6 +9,7 @@
 </head>
 <%- include('partials/header.ejs') %>
 <%- include('partials/menu.ejs') %>
+<%- include('partials/alertModal.ejs') %>
 
 <body>
   <div class="container mt-5">
@@ -67,11 +68,10 @@
           window.location.href = '/';
         } else {
           const data = await response.json();
-          document.getElementById('errorMessage').textContent = data.message || 'Erro ao fazer login';
+          showAlert('Erro de Login', data.message || 'Credenciais inválidas');
         }
       } catch (error) {
-        console.error('Erro:', error);
-        document.getElementById('errorMessage').textContent = 'Erro ao fazer login';
+        handleError(error, 'Erro ao fazer login');
       }
     });
 

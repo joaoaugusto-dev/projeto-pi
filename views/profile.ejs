@@ -1,5 +1,6 @@
 <%- include('partials/header.ejs') %>
 <%- include('partials/menu.ejs') %>
+<%- include('partials/alertModal.ejs') %>
 
 <div class="container mt-5">
   <div class="row">
@@ -80,11 +81,6 @@
 <script>
 document.getElementById('profileForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const errorDiv = document.getElementById('errorMessage');
-  const successDiv = document.getElementById('successMessage');
-  errorDiv.textContent = '';
-  successDiv.textContent = '';
-
   const formData = new FormData(this);
 
   try {
@@ -96,14 +92,13 @@ document.getElementById('profileForm').addEventListener('submit', async function
     const data = await response.json();
 
     if (response.ok) {
-      successDiv.textContent = 'Perfil atualizado com sucesso!';
+      showAlert('Sucesso', 'Perfil atualizado com sucesso!');
       setTimeout(() => window.location.reload(), 1500);
     } else {
-      errorDiv.textContent = data.message || 'Erro ao atualizar perfil';
+      showAlert('Erro', data.message || 'Erro ao atualizar perfil');
     }
   } catch (error) {
-    console.error('Erro:', error);
-    errorDiv.textContent = 'Erro ao atualizar perfil';
+    handleError(error, 'Erro ao atualizar perfil');
   }
 });
 
@@ -135,6 +130,12 @@ confirmarSenha.addEventListener('input', validatePassword);
 
 document.getElementById('file').addEventListener('change', function() {
   if (this.files && this.files[0]) {
+    const file = this.files[0];
+    if (file.size > 5 * 1024 * 1024) {
+      showAlert('Arquivo Muito Grande', 'O tamanho máximo permitido é 5MB');
+      this.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onload = function(e) {
       document.querySelector('.profile-img').src = e.target.result;
