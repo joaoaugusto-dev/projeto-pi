@@ -36,7 +36,7 @@ const Funcionarios = conn.define('funcionarios', {
     lumi_preferida: {
         type: sequelize.INTEGER,
         allowNull: true,
-        defaultValue: 500
+        defaultValue: 75
     },
     tag_nfc: {
         type: sequelize.STRING,

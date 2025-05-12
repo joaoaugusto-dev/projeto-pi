@@ -16,7 +16,7 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <div class="d-flex align-items-center">
-                                        <i class="bi bi-thermometer-half stats-icon text-primary"></i>
+                                        <i class="bi bi-thermometer-half stats-icon" style="color: #EB6A00;"></i>
                                         <div>
                                             <small class="stats-label d-block">Temperatura</small>
                                             <div class="d-flex align-items-baseline">
@@ -28,7 +28,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <div class="d-flex align-items-center">
-                                        <i class="bi bi-brightness-high stats-icon text-primary"></i>
+                                        <i class="bi bi-brightness-high stats-icon" style="color: #EB6A00;"></i>
                                         <div>
                                             <small class="stats-label d-block">Luminosidade</small>
                                             <div class="d-flex align-items-baseline">
@@ -44,16 +44,16 @@
                         <form id="preferencesForm">
                             <div class="mb-4">
                                 <label for="tempRange" class="form-label font-scale">Temperatura Preferida</label>
-                                <input type="range" class="form-range" id="tempRange" min="16" max="32" step="0.5" 
+                                <input type="range" class="form-range" Cerebro id="tempRange" min="16" max="32" step="0.5" 
                                        value="<%= funcionario.temp_preferida %>">
                                 <div class="range-value" id="tempValue"><%= funcionario.temp_preferida %>°C</div>
                             </div>
 
                             <div class="mb-4">
                                 <label for="lumiRange" class="form-label font-scale">Luminosidade Preferida</label>
-                                <input type="range" class="form-range" id="lumiRange" min="0" max="1000" step="50" 
+                                <input type="range" class="form-range" id="lumiRange" min="0" max="100" step="25" 
                                        value="<%= funcionario.lumi_preferida %>">
-                                <div class="range-value" id="lumiValue"><%= funcionario.lumi_preferida %> lux</div>
+                                <div class="range-value" id="lumiValue"><%= funcionario.lumi_preferida %> %</div>
                             </div>
 
                             <div class="mb-4">
@@ -77,7 +77,7 @@
                             </div>
 
                             <div class="d-grid">
-                                <button type="submit" class="btn btn-primary font-scale">Salvar Preferências</button>
+                                <button type="submit" class="btn" style="background-color: #EB6A00; color: white;">Salvar Preferências</button>
                             </div>
                         </form>
                     </div>
@@ -100,7 +100,7 @@
         });
 
         lumiRange.addEventListener('input', function() {
-            lumiValue.textContent = this.value + ' lux';
+            lumiValue.textContent = this.value + ' %';
         });
 
         document.getElementById('preferencesForm').addEventListener('submit', async function(e) {

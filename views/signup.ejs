@@ -88,7 +88,7 @@
       const formData = new FormData(e.target);
 
       try {
-        const response = await fetch('/auth/register', {
+        const response = await fetch('/register', {
           method: 'POST',
           body: formData
         });

@@ -23,49 +23,26 @@ function validatePassword() {
     }
 }
 
-// Form submissions
-async function handleLoginSubmit(e) {
-    e.preventDefault();
-    const matricula = document.getElementById('matricula').value;
-    const senha = document.getElementById('senha').value;
-
-    try {
-        const response = await fetch('/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ matricula, senha })
-        });
-
-        if (response.ok) {
-            window.location.href = '/';
-        } else {
-            const data = await response.json();
-            document.getElementById('errorMessage').textContent = data.message || 'Erro ao fazer login';
-        }
-    } catch (error) {
-        console.error('Erro:', error);
-        document.getElementById('errorMessage').textContent = 'Erro ao fazer login';
-    }
-}
-
 async function handleLogout() {
-    try {
-        const response = await fetch('/auth/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+  try {
+    const response = await fetch('/logout', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    });
 
-        if (response.ok) {
-            window.location.href = '/';
-        }
-    } catch (error) {
-        console.error('Erro:', error);
-        document.getElementById('logoutErrorMessage').textContent = 'Erro ao fazer logout';
+    if (response.ok) {
+      console.log('Logout realizado com sucesso');
+      window.location.href = '/inicio'; 
+    } else {
+      const err = await response.json();
+      console.error('Falha no logout:', err.message);
+      document.getElementById('logoutErrorMessage').textContent = err.message;
     }
+  } catch (error) {
+    console.error('Erro:', error);
+    document.getElementById('logoutErrorMessage').textContent = 'Erro ao fazer logout';
+  }
 }
 
 // Setup event listeners

@@ -7,33 +7,13 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const uuid = require('uuid');
-
-function obterProximoNumeroSequencial() {
-    const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
-    const arquivos = fs.readdirSync(uploadDir);
-    
-    let maiorNumero = 0;
-
-    arquivos.forEach(arquivo => {
-        const match = arquivo.match(/perfil-(\d+)\./);
-        if (match) {
-            const numero = parseInt(match, 10);
-            if (numero > maiorNumero) {
-                maiorNumero = numero;
-            }
-        }
-    });
-
-    return maiorNumero + 1;
-}
 
 const register = async (req, res) => {
     let { matricula, f_nome, f_sobrenome, f_senha, confirmasenha } = req.body;
-    let file = req.file ? req.file.filename : null;
-    const filePath = req.file ? path.join(__dirname, '..', 'public', 'uploads', file) : null;
+    let originalFilename = req.file ? req.file.filename : null;
+    let filePath = req.file ? path.join(__dirname, '..', 'public', 'uploads', originalFilename) : null;
 
-    // Validação das regras de senha
+    // Validação da senha
     const passwordValidation = {
         minLength: f_senha.length >= 8,
         hasUpperCase: /[A-Z]/.test(f_senha),
@@ -41,7 +21,7 @@ const register = async (req, res) => {
         passwordsMatch: f_senha === confirmasenha,
     };
 
-    if (!passwordValidation.minLength || !passwordValidation.hasUpperCase || 
+    if (!passwordValidation.minLength || !passwordValidation.hasUpperCase ||
         !passwordValidation.hasSymbol || !passwordValidation.passwordsMatch) {
         if (filePath) fs.unlinkSync(filePath);
         return res.status(400).json({
@@ -50,32 +30,34 @@ const register = async (req, res) => {
     }
 
     try {
-        console.log('Verificando se a matrícula já está cadastrada');
         const matriculaExists = await Funcionarios.findOne({ where: { matricula: matricula } });
         if (matriculaExists) {
             if (filePath) fs.unlinkSync(filePath);
             return res.status(400).json({ message: 'Esta matrícula já está cadastrada.' });
         }
 
-        console.log('Gerando hash da senha');
         const hashedPassword = bcrypt.hashSync(f_senha, 10);
 
-        console.log('Criando novo usuário no banco de dados');
         const newUser = await Funcionarios.create({
             matricula: matricula,
             nome: f_nome,
             sobrenome: f_sobrenome,
             senha: hashedPassword,
-            foto: file
+            foto: null // será atualizado depois
         });
 
-        console.log('Gerando token JWT para o novo usuário');
+        // Renomear o arquivo com base no ID do usuário
+        let newFilename = null;
+        if (filePath) {
+            newFilename = `perfil-${newUser.id}${path.extname(originalFilename)}`;
+            const newFilePath = path.join(__dirname, '..', 'public', 'uploads', newFilename);
+            fs.renameSync(filePath, newFilePath);
+            await newUser.update({ foto: newFilename });
+        }
+
         const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET);
-        
-        console.log('Definindo cookie do token');
         res.cookie('token', token, { httpOnly: true });
 
-        console.log('Usuário registrado com sucesso');
         return res.status(200).json({ success: true, message: 'Cadastro realizado com sucesso!' });
     } catch (err) {
         console.error('Erro durante o processo de registro:', err);
@@ -89,25 +71,30 @@ const login = async (req, res) => {
 
     try {
         const user = await Funcionarios.findOne({ where: { matricula: matricula } });
-
+    
         if (!user || !bcrypt.compareSync(senha, user.senha)) {
-            return res.status(400).json({ message: 'Matrícula ou Senha incorreta. Tente novamente!' });
+            return res.status(400).json({ message: 'Matrícula ou senha incorreta. Tente novamente!' });
         }
-
+    
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+    
         res.cookie('token', token, { httpOnly: true });
-        return res.json({ message: 'Login bem-sucedido!' });
+    
+        // Log de login bem-sucedido
+        console.log(`Login bem-sucedido para o usuário com ID: ${user.id}, matricula: ${user.matricula}`);
+    
+        return res.redirect('/');
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: 'Erro no servidor' });
-    }
+    }    
 };
 
 const authenticateToken = (req, res, next) => {
     const token = req.cookies.token;
 
     if (!token) {
-        return res.redirect('/entrar');
+        return res.redirect('/inicio');
     }
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
@@ -120,15 +107,15 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// Novo storage sem uuid
 const storage = multer.diskStorage({
     destination: function(req, file, cb){
         cb(null, './public/uploads/');
     },
     filename: function (req, file, cb) {
-        const nomeArquivo = `perfil-${uuid.v4()}${path.extname(file.originalname)}`;
-        console.log(`Nome do arquivo gerado: ${nomeArquivo}`);
-        cb(null, nomeArquivo);
-   }
+        const tempName = `temp-${Date.now()}${path.extname(file.originalname)}`;
+        cb(null, tempName);
+    }
 });
 
 const upload = multer({ storage });
@@ -137,8 +124,9 @@ const upload = multer({ storage });
 router.post('/register', upload.single('file'), register);
 router.post('/login', login);
 router.post('/logout', (req, res) => {
-    res.clearCookie('token');
-    res.json({ message: 'Logout bem-sucedido!' });
+  console.log('Cookie antes do logout:', req.cookies.token);
+  res.clearCookie('token', { path: '/' });
+  console.log('Enviado Set-Cookie para limpar o token');
+  return res.status(200).json({ success: true, message: 'Logout realizado' });
 });
-
 module.exports = { router, authenticateToken, upload };

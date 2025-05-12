@@ -1,144 +1,466 @@
 <%- include('partials/header.ejs') %>
-<%- include('partials/menu.ejs') %>
+  <%- include('partials/menu.ejs') %>
 
-<body>
-    <div class="container py-5">
-        <% if (!user) { %>
-            <div class="row align-items-center justify-content-between">
-                <div class="col-md-6 mb-4 mb-md-0">
-                    <h1 class="display-4 fw-bold mb-4 text">Sistema de Automação Inteligente</h1>
-                    <p class="lead mb-4">Controle automático de iluminação e temperatura personalizado para cada usuário.</p>
-                    <div class="d-flex gap-3">
-                        <a href="/entrar" class="btn btn-outline-primary btn-lg">Entrar</a>
-                        <a href="/cadastro" class="btn btn-primary btn-lg">Cadastrar</a>
+    <body>
+      <% if (user && funcionario) { %>
+        <div class="container py-5">
+          <div class="row g-4">
+            <!-- COLUNA 1: Perfil + Ações Rápidas -->
+            <div class="col-md-4 d-flex">
+              <div class="card dashboard-card w-100 h-100">
+                <div class="card-body text-center p-4 d-flex flex-column justify-content-between">
+                  <div>
+                    <div class="mb-4">
+                      <% if (funcionario.foto) { %>
+                        <img src="/uploads/<%= funcionario.foto %>" class="profile-img rounded-circle border border-3">
+                        <% } else { %>
+                          <img src="/images/perfil-default.png" class="profile-img rounded-circle border border-3">
+                          <% } %>
                     </div>
+                    <h4 class="fw-bold mb-1">
+                      <%= funcionario.nome %>
+                        <%= funcionario.sobrenome %>
+                    </h4>
+                    <p class="text-muted mb-3">Matrícula: <%= funcionario.matricula %>
+                    </p>
+                    <a href="/dados" class="btn btn-outline-primary w-100 mb-4">Ver Perfil</a>
+                  </div>
+                  <div>
+                    <h6 class="fw-bold mb-3 text-start">Ações Rápidas</h6>
+                    <div class="d-grid gap-2">
+                      <a href="/preferencias" class="btn btn-primary">
+                        <i class="bi bi-sliders me-2"></i>Gerenciar Preferências
+                      </a>
+                      <a href="/historico" class="btn btn-outline-primary">
+                        <i class="bi bi-clock-history me-2"></i>Ver Histórico
+                      </a>
+                      <a onclick="atualizarDadosAmbiente()" class="btn btn-primary">
+                        Atualizar Dados
+                      </a>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-md-5">
-                    <img src="../images/Empilhadeira.png" class="img-fluid rounded-custom shadow-custom">
-                </div>
+              </div>
             </div>
-        <% } else { %>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card dashboard-card">
-                        <div class="card-body text-center p-4">
-                            <div class="mb-4">
-                                <% if (funcionario.foto) { %>
-                                    <img src="/uploads/<%= funcionario.foto %>" alt="Foto de perfil" 
-                                         class="profile-img rounded-circle border border-3">
-                                <% } else { %>
-                                    <img src="/images/perfil-default.png" alt="Foto de perfil padrão" 
-                                         class="profile-img rounded-circle border border-3">
-                                <% } %>
-                            </div>
-                            <h4 class="fw-bold mb-1"><%= funcionario.nome %> <%= funcionario.sobrenome %></h4>
-                            <p class="text-muted mb-3">Matrícula: <%= funcionario.matricula %></p>
-                            <a href="/dados" class="btn btn-outline-primary w-100">Ver Perfil</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-8">
-                    <div class="row g-4">
-                        <div class="col-12">
-                            <div class="card dashboard-card">
-                                <div class="card-body p-4">
-                                    <h5 class="fw-bold mb-4">Suas Preferências</h5>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="d-flex align-items-center mb-3">
-                                                <i class="bi bi-thermometer-half stats-icon"></i>
-                                                <div>
-                                                    <small class="stats-label d-block">Temperatura Preferida</small>
-                                                    <h3 class="main-stats mb-0"><%= funcionario.temp_preferida %>°C</h3>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="d-flex align-items-center mb-3">
-                                                <i class="bi bi-brightness-high stats-icon"></i>
-                                                <div>
-                                                    <small class="stats-label d-block">Luminosidade Preferida</small>
-                                                    <h3 class="main-stats mb-0"><%= funcionario.lumi_preferida %> lux</h3>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="col-md-6">
-                            <div class="card dashboard-card h-100">
-                                <div class="card-body p-4">
-                                    <h5 class="fw-bold mb-3">Configurações Atuais</h5>
-                                    <div class="mb-4">
-                                        <small class="stats-label d-block mb-1">Temperatura</small>
-                                        <div class="d-flex align-items-baseline">
-                                            <h2 class="main-stats mb-0 me-2"><span id="temp_atual">--</span>°C</h2>
-                                            <small class="text-muted">Média: <span id="lumi_media">--</span> lux</small>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <small class="stats-label d-block mb-1">Luminosidade</small>
-                                        <div class="d-flex align-items-baseline">
-                                            <h2 class="main-stats mb-0 me-2"><span id="lumi_atual">--</span> lux</h2>
-                                            <small class="text-muted">Média: <span id="lumi_media">--</span> lux</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="card dashboard-card h-100">
-                                <div class="card-body p-4">
-                                    <h5 class="fw-bold mb-4">Ações Rápidas</h5>
-                                    <div class="d-grid gap-3">
-                                        <a href="/preferencias" class="btn btn-primary">
-                                            <i class="bi bi-sliders me-2"></i>Gerenciar Preferências
-                                        </a>
-                                        <a href="/historico" class="btn btn-outline-primary">
-                                            <i class="bi bi-clock-history me-2"></i>Ver Histórico
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <!-- COLUNA 2: Parâmetros Atuais + Médias da Sala + Suas Preferências -->
+            <div class="col-md-4 d-flex">
+              <div class="card dashboard-card w-100 h-100">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                  <div>
+                    <!-- Parâmetros Atuais -->
+                    <h5 class="fw-bold mb-4">Parâmetros Atuais</h5>
+                    <div class="mb-3">
+                      <small class="stats-label d-block mb-1">Temperatura</small>
+                      <h2 class="main-stats mb-0"><span id="temp_atual">--</span>°C</h2>
                     </div>
-                </div>
-            </div>
-        <% } %>
+                    <div class="mb-3">
+                      <small class="stats-label d-block mb-1">Luminosidade</small>
+                      <h2 class="main-stats mb-0"><span id="lumi_atual">--</span>%</h2>
+                    </div>
+                    <div class="mb-3">
+                      <small class="stats-label d-block mb-1">Umidade</small>
+                      <h2 class="main-stats mb-0"><span id="humidade_atual">--</span>%</h2>
+                    </div>
+                    <div class="mb-3">
+                      <small class="stats-label d-block mb-1">Pessoas Presentes</small>
+                      <h2 class="main-stats mb-0"><span id="pessoas_presentes">--</span></h2>
+                    </div>
+
+                    <!-- Médias da Sala -->
+                    <h6 class="fw-bold mb-3">Médias da Sala</h6>
+                    <div class="row justify-content-center text-center mb-4 w-100">
+                      <div class="col-6 d-flex flex-column align-items-center">
+                        <small class="stats-label d-block">Média Preferência Temp.</small>
+                        <h3 class="main-stats mb-0"><span id="temp_preferida_media">--</span>°C</h3>
+                      </div>
+                      <div class="col-6 d-flex flex-column align-items-center">
+                        <small class="stats-label d-block">Média Preferência Lumi.</small>
+                        <h3 class="main-stats mb-0"><span id="lumi_preferida_media">--</span>%</h3>
+                      </div>
+                    </div>
+                    <div class="text-center mb-4">
+                      <small class="stats-label d-block">Nível de Luminosidade Utilizado</small>
+                      <h3 class="main-stats mb-0"><span id="lumi_nivel_utilizado">--</span>%</h3>
+                    </div>
+
+<div class="container py-4">
+  <h5 class="fw-bold mb-3 border-bottom pb-2">Presentes na Sala</h5>
+  <div class="card shadow-sm mb-4">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped table-bordered mb-0">
+          <thead class="table-light">
+            <tr class="text-center">
+              <th class="fw-bold text-wrap">Nome</th>
+              <th class="fw-bold text-wrap">Temperatura Preferida</th>
+              <th class="fw-bold text-wrap">Iluminação Preferida</th>
+            </tr>
+          </thead>
+          <tbody id="tabela_presentes" class="align-middle text-center">
+            <tr class="text-muted">
+              <td colspan="3">Nenhum</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
+  </div>
+</div>
 
-    <%- include('partials/footer.ejs') %>
-    <%- include('./partials/vlibras.ejs') %>
+                    <!-- Suas Preferências -->
+                    <h6 class="fw-bold mb-3">Suas Preferências</h6>
+                    <div class="row justify-content-center text-center mb-4 w-100">
+                      <div class="col-6 d-flex flex-column align-items-center">
+                        <i class="bi bi-thermometer-half stats-icon mb-1"></i>
+                        <small class="stats-label d-block">Temperatura Preferida</small>
+                        <h3 class="main-stats mb-0">
+                          <%= funcionario.temp_preferida %>°C
+                        </h3>
+                      </div>
+                      <div class="col-6 d-flex flex-column align-items-center">
+                        <i class="bi bi-brightness-high stats-icon mb-1"></i>
+                        <small class="stats-label d-block">Luminosidade Preferida</small>
+                        <h3 class="main-stats mb-0">
+                          <%= funcionario.lumi_preferida %>%
+                        </h3>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-    <script>
-        function atualizarDadosAmbiente() {
-            fetch('/esp32/ambiente')
-                .then(response => response.json())
-                .then(data => {
-                    const tempSpan = document.getElementById('temp_atual');
-                    const humidSpan = document.getElementById('humid_atual');
-                    const lumiSpan = document.getElementById('lumi_atual');
-                    const lumiMediaSpan = document.getElementById('lumi_media');
-                    
-                    if (tempSpan) {
-                        tempSpan.textContent = data.atualizado ? data.temperatura : '--';
-                        tempSpan.style.color = data.atualizado ? 'inherit' : '#999';
+            <!-- COLUNA 3: Controles e Tabela de Presentes -->
+            <div class="col-md-4 d-flex">
+              <div class="card dashboard-card w-100 h-100">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                  <div>
+                    <!-- Controles -->
+                    <h5 class="fw-bold mb-3">Ativar Controles Manuais</h5>
+
+                    <!-- Controles Manuais Protegidos por Senha -->
+                    <div class="mb-4">
+                      <h6 class="fw-bold mb-3">Controle Manual Total (Protegido)</h6>
+                      <div id="loginManual">
+                        <label class="form-label" for="senhaManual">Digite a senha</label>
+                        <input type="password" id="senhaManual" class="form-control" placeholder="Senha">
+                        <button class="btn btn-primary w-100 mt-2" onclick="verificarSenhaManual()">Acessar</button>
+                        <p id="erroManual" class="text-danger mt-2"></p>
+                      </div>
+                      <div id="controlesManuais" class="hidden">
+                        <!-- Intensidade da Ventilação (Destacado) -->
+                        <div class="mb-4 p-3 highlight-container rounded">
+                          <label class="form-label fw-bold">Intensidade da Ventilação</label>
+                          <div class="input-group">
+                            <button class="btn btn-outline-primary" type="button"
+                              onclick="ajustarValor('velocidade', -10)">-</button>
+                            <input id="velocidade" type="text" class="form-control text-center" value="100" readonly>
+                            <button class="btn btn-outline-primary" type="button"
+                              onclick="ajustarValor('velocidade', 10)">+</button>
+                          </div>
+                          <small class="text-muted">Mín: 0 | Máx: 100</small>
+                        </div>
+
+                        <!-- Intensidade da Luminosidade (Destacado) -->
+                        <div class="mb-4 p-3 highlight-container rounded">
+                          <label class="form-label fw-bold">Intensidade da Luminosidade</label>
+                          <div class="btn-group w-100 mb-2" role="group" style="flex-wrap: nowrap;">
+                            <button type="button" class="btn btn-primary"
+                              style="flex: 1; min-width: 0; padding: 0.25rem 0.5rem;"
+                              onclick="enviarComandoManual(0)">0%</button>
+                            <button type="button" class="btn btn-primary"
+                              style="flex: 1; min-width: 0; padding: 0.25rem 0.5rem;"
+                              onclick="enviarComandoManual(25)">25%</button>
+                            <button type="button" class="btn btn-primary"
+                              style="flex: 1; min-width: 0; padding: 0.25rem 0.5rem;"
+                              onclick="enviarComandoManual(50)">50%</button>
+                            <button type="button" class="btn btn-primary"
+                              style="flex: 1; min-width: 0; padding: 0.25rem 0.5rem;"
+                              onclick="enviarComandoManual(75)">75%</button>
+                            <button type="button" class="btn btn-primary"
+                              style="flex: 1; min-width: 0; padding: 0.25rem 0.5rem;"
+                              onclick="enviarComandoManual(100)">100%</button>
+                          </div>
+                          <small class="text-muted d-block mb-2">Selecione o nível de luminosidade</small>
+                          <button class="btn btn-primary w-100" onclick="restaurarModoAuto()">Restaurar
+                            Automático</button>
+                          <p id="feedbackManual" class="mt-2 text-muted"></p>
+                        </div>
+
+                        <!-- Outros Comandos -->
+                        <div class="mb-3">
+                          <h6 class="fw-bold mb-3">Outros Controles</h6>
+                          <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary" onclick="enviarComando('climatizar')">
+                              <i class="bi bi-snow2 me-2"></i>Climatizar
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="enviarComando('swing')">
+                              <i class="bi bi-arrow-repeat me-2"></i>Swing
+                            </button>
+                            <button class="btn btn-outline-warning" onclick="enviarComando('dreno')">
+                              <i class="bi bi-droplet me-2"></i>Dreno
+                            </button>
+                            <button class="btn btn-outline-info" onclick="enviarComando('exaustao')">
+                              <i class="bi bi-wind me-2"></i>Exaustão
+                            </button>
+                            <button class="btn btn-outline-dark" onclick="enviarComando('timer')">
+                              <i class="bi bi-clock me-2"></i>Timer
+                            </button>
+                          </div>
+                        </div>
+                        <button class="btn btn-primary w-100 mt-3" onclick="aplicarAlteracoes()">Aplicar
+                          Alterações</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <% } else { %>
+          <script>
+            window.location.href = '/inicio';
+          </script>
+          <% } %>
+
+            <%- include('partials/footer.ejs') %>
+              <%- include('./partials/vlibras.ejs') %>
+
+                <script>
+                  const SENHA_CORRETA = "unifeob"; // Substitua pela sua senha real, se necessário
+
+                  // Função para mostrar o modal com título e mensagem
+                  function mostrarModal(titulo, mensagem) {
+                    document.getElementById('feedbackModalLabel').textContent = titulo;
+                    document.getElementById('feedbackModalBody').textContent = mensagem;
+                    var myModal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+                    myModal.show();
+                  }
+
+                  // Função para verificar a senha e autorizar controles manuais
+                  function verificarSenhaManual() {
+                    const pessoasPresentes = document.getElementById('pessoas_presentes').textContent;
+                    if (pessoasPresentes === '0' || pessoasPresentes === '--') {
+                      mostrarModal('Informação', 'A sala está vazia. Os controles manuais estão desativados.');
+                      return;
                     }
-                    if (humidSpan) {
-                        humidSpan.textContent = data.atualizado ? data.humidade : '--';
-                        humidSpan.style.color = data.atualizado ? 'inherit' : '#999';
-                    }
-                    if (lumiSpan) lumiSpan.textContent = data.luminosidade || '--';
-                    if (lumiMediaSpan) lumiMediaSpan.textContent = data.luminosidade_media || '--';
-                })
-                .catch(error => console.error('Erro ao atualizar dados:', error));
-        }
 
-        atualizarDadosAmbiente();
-        setInterval(atualizarDadosAmbiente, 30000);
-    </script>
-</body>
+                    const senha = document.getElementById('senhaManual').value.trim();
+                    if (!senha) {
+                      mostrarModal('Erro', 'Por favor, insira a senha');
+                      return;
+                    }
+                    if (senha === SENHA_CORRETA) {
+                      document.getElementById('loginManual').classList.add('hidden');
+                      document.getElementById('controlesManuais').classList.remove('hidden');
+                      document.getElementById('erroManual').textContent = '';
+                      document.getElementById('senhaManual').value = ''; // Limpa o campo de senha
+                    } else {
+                      mostrarModal('Erro', 'Senha incorreta');
+                    }
+                  }
+
+                  // Função para atualizar os dados do ambiente
+                  function atualizarDadosAmbiente() {
+                    fetch('/esp32/ambiente', {
+                      credentials: 'include'
+                    })
+                      .then(response => {
+                        if (!response.ok) {
+                          console.error('Erro na resposta:', response.status);
+                          window.location.href = '/inicio';
+                          return;
+                        }
+                        return response.json();
+                      })
+                      .then(data => {
+                        if (data) {
+                          document.getElementById('temp_atual').textContent = data.atualizado && data.temperatura !== null ? data.temperatura : '--';
+                          document.getElementById('lumi_atual').textContent = data.atualizado && data.luminosidade !== null ? data.luminosidade : '--';
+                          document.getElementById('humidade_atual').textContent = data.atualizado && data.humidade !== null ? data.humidade : '--';
+                          document.getElementById('pessoas_presentes').textContent = data.atualizado ? data.pessoas : '--';
+                          document.getElementById('temp_preferida_media').textContent = data.tempPreferidaMedia !== null ? data.tempPreferidaMedia : '--';
+                          document.getElementById('lumi_preferida_media').textContent = data.lumiPreferidaMedia !== null ? data.lumiPreferidaMedia : '--';
+
+                          // Calcular o nível de luminosidade utilizado
+                          const niveis = [0, 25, 50, 75, 100];
+                          let nivelUtilizado = 0;
+                          if (data.presentes.length > 0 && data.lumiPreferidaMedia !== null) {
+                            nivelUtilizado = nivelValido(data.lumiPreferidaMedia);
+                          }
+                          document.getElementById('lumi_nivel_utilizado').textContent = nivelUtilizado;
+
+                          // Desativar modo manual se a sala estiver vazia
+                          if (data.presentes.length === 0) {
+                            const controlesManuais = document.getElementById('controlesManuais');
+                            const loginManual = document.getElementById('loginManual');
+                            if (!controlesManuais.classList.contains('hidden')) {
+                              controlesManuais.classList.add('hidden');
+                              loginManual.classList.remove('hidden');
+                              document.getElementById('senhaManual').value = ''; // Limpa o campo de senha
+                              document.getElementById('erroManual').textContent = '';
+                              mostrarModal('Informação', 'A sala está vazia. Todos os controles estão desativados.');
+                              restaurarModoAuto(); // Envia comando para restaurar modo automático
+                            }
+                          }
+
+                          const tbody = document.getElementById('tabela_presentes');
+                          tbody.innerHTML = '';
+                          if (data.presentes.length > 0) {
+                            data.presentes.forEach(p => {
+                              const tr = document.createElement('tr');
+                              tr.innerHTML = `
+              <td>${p.nome}</td>
+              <td>${p.temp_preferida}°C</td>
+              <td>${p.lumi_preferida}%</td>
+            `;
+                              tbody.appendChild(tr);
+                            });
+                          } else {
+                            tbody.innerHTML = '<tr><td colspan="3">Nenhum</td></tr>';
+                          }
+                        }
+                      })
+                      .catch(error => {
+                        console.error('Erro ao atualizar dados:', error);
+                        mostrarModal('Erro', 'Erro ao atualizar dados do ambiente');
+                        window.location.href = '/inicio';
+                      });
+                  }
+
+                  // Função para enviar comandos manuais
+                  function enviarComandoManual(nivel) {
+                    const pessoasPresentes = document.getElementById('pessoas_presentes').textContent;
+                    if (pessoasPresentes === '0' || pessoasPresentes === '--') {
+                      mostrarModal('Informação', 'A sala está vazia. Os controles manuais estão desativados.');
+                      return;
+                    }
+                    fetch('/esp32/manual', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
+                      body: JSON.stringify({ luminosidade: nivel })
+                    })
+                      .then(response => response.json())
+                      .then(data => {
+                        if (data.success) {
+                          mostrarModal('Sucesso', `Comando manual enviado: ${nivel}%`);
+                          document.getElementById('lumi_atual').textContent = nivel;
+                        } else {
+                          mostrarModal('Erro', data.error || 'Erro ao enviar comando');
+                        }
+                      })
+                      .catch(err => {
+                        console.error('Erro ao enviar comando manual:', err);
+                        mostrarModal('Erro', 'Erro ao enviar comando');
+                      });
+                  }
+
+                  // Função para restaurar o modo automático
+                  function restaurarModoAuto() {
+                    fetch('/esp32/manual', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
+                      body: JSON.stringify({ luminosidade: 'auto' })
+                    })
+                      .then(response => response.json())
+                      .then(data => {
+                        if (data.success) {
+                          mostrarModal('Sucesso', 'Modo automático restaurado');
+                          document.getElementById('lumi_atual').textContent = '--';
+                          atualizarDadosAmbiente(); // Atualiza para refletir o modo automático
+                        } else {
+                          mostrarModal('Erro', data.error || 'Erro ao restaurar automático');
+                        }
+                      })
+                      .catch(err => {
+                        console.error('Erro ao restaurar modo automático:', err);
+                        mostrarModal('Erro', 'Erro ao restaurar automático');
+                      });
+                  }
+
+                  // Função para enviar comandos adicionais (ex.: climatizar)
+                  function enviarComando(funcao) {
+                    const pessoasPresentes = document.getElementById('pessoas_presentes').textContent;
+                    if (pessoasPresentes === '0' || pessoasPresentes === '--') {
+                      mostrarModal('Informação', 'A sala está vazia. Os controles estão desativados.');
+                      return;
+                    }
+                    fetch('/climatizador/comando', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
+                      body: JSON.stringify({ comando: funcao })
+                    }).then(res => {
+                      if (!res.ok) {
+                        mostrarModal('Erro', 'Erro ao enviar comando. Por favor, faça login novamente.');
+                        window.location.href = '/inicio';
+                      } else {
+                        mostrarModal('Sucesso', `Comando ${funcao} enviado com sucesso`);
+                      }
+                    }).catch(err => {
+                      console.error('Erro na requisição:', err);
+                      mostrarModal('Erro', 'Erro na comunicação com o servidor');
+                      window.location.href = '/inicio';
+                    });
+                  }
+
+                  // Função para aplicar alterações (ex.: ventilação)
+                  function aplicarAlteracoes() {
+                    const pessoasPresentes = document.getElementById('pessoas_presentes').textContent;
+                    if (pessoasPresentes === '0' || pessoasPresentes === '--') {
+                      mostrarModal('Informação', 'A sala está vazia. Os controles estão desativados.');
+                      return;
+                    }
+                    const intensidade = parseInt(document.getElementById('velocidade').value);
+                    fetch('/climatizador/ajustar', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
+                      body: JSON.stringify({ intensidade })
+                    }).then(res => {
+                      if (!res.ok) {
+                        mostrarModal('Erro', 'Erro ao aplicar alterações. Por favor, faça login novamente.');
+                        window.location.href = '/inicio';
+                      } else {
+                        mostrarModal('Sucesso', `Alterações aplicadas: ventilação ajustada para ${intensidade}%`);
+                      }
+                    }).catch(err => {
+                      console.error('Erro na requisição:', err);
+                      mostrarModal('Erro', 'Erro na comunicação com o servidor');
+                      window.location.href = '/inicio';
+                    });
+                  }
+
+                  // Função auxiliar para snapping de luminosidade
+                  function nivelValido(media) {
+                    const niveis = [0, 25, 50, 75, 100];
+                    for (let i = 0; i < niveis.length - 1; i++) {
+                      if (media > niveis[i] && media <= niveis[i + 1]) {
+                        return niveis[i + 1];
+                      }
+                    }
+                    return 100; // Se for maior que 100 ou exatamente 100
+                  }
+
+                  // Adiciona evento de tecla Enter ao campo de senha
+                  document.getElementById('senhaManual').addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter') {
+                      event.preventDefault(); // Evita comportamento padrão do Enter (ex.: submissão de formulário)
+                      verificarSenhaManual();
+                    }
+                  });
+
+                  // Inicializa a página
+                  atualizarDadosAmbiente();
+                  setInterval(atualizarDadosAmbiente, 5000);
+                </script>
+                <style>
+                  .hidden {
+                    display: none;
+                  }
+                </style>
+    </body>

@@ -44,7 +44,7 @@ function setupPreferenceFormListeners() {
 
     if (lumiSlider) {
         lumiSlider.addEventListener('input', function() {
-            document.getElementById('lumiValue').textContent = this.value + ' lux';
+            document.getElementById('lumiValue').textContent = this.value + ' %';
         });
     }
 
@@ -74,7 +74,7 @@ async function handlePreferenceSubmit(e) {
         const data = await response.json();
         
         if (!response.ok) {
-            throw new Error(data.message || 'Erro ao atualizar preferências');
+            throw new Error(data.message answering: 'Erro ao atualizar preferências');
         }
 
         if (data.success) {

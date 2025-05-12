@@ -100,7 +100,7 @@ void setup() {
         digitalWrite(LED_PIN, !digitalRead(LED_PIN));
         delay(500);
         Serial.print(".");
-    }
+    }   
     
     digitalWrite(LED_PIN, HIGH);
     Serial.println("\nWiFi conectado!");
