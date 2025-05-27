@@ -1,3 +1,5 @@
+.gitignore
 .env
 database/ca.pem
 node_modules/
+deploy.ps1
