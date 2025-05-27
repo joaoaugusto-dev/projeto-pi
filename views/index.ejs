@@ -1,0 +1,900 @@
+<%- include('partials/header.ejs') %>
+  <%- include('partials/menu.ejs') %>
+
+    <!-- Modal de Feedback -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="feedbackModalLabel">Feedback</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body" id="feedbackModalBody">
+            ...
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <body>
+      <% if (user && funcionario) { %>
+        <div class="container py-5">
+          <div class="row g-4">
+            <!-- COLUNA 1: Perfil + Ações Rápidas -->
+            <div class="col-md-4 d-flex">
+              <div class="card dashboard-card w-100 h-100">
+                <div class="card-body text-center p-4 d-flex flex-column justify-content-between">
+                  <div>
+                    <div class="mb-4">
+                      <% if (funcionario.foto) { %>
+                        <img src="/uploads/<%= funcionario.foto %>" class="profile-img rounded-circle border border-3">
+                        <% } else { %>
+                          <img src="/images/perfil-default.png" class="profile-img rounded-circle border border-3">
+                          <% } %>
+                    </div>
+                    <h4 class="fw-bold mb-1">
+                      <%= funcionario.nome %>
+                        <%= funcionario.sobrenome %>
+                    </h4>
+                    <p class="text-muted mb-3">Matrícula: <%= funcionario.matricula %>
+                    </p>
+                    <a href="/dados" class="btn btn-outline-primary w-100 mb-4">Ver Perfil</a>
+                  </div>
+                  <div>
+                    <h6 class="fw-bold mb-3 text-start">Ações Rápidas</h6>
+                    <div class="d-grid gap-2">
+                      <a href="/preferencias" class="btn btn-primary">
+                        <i class="bi bi-sliders me-2"></i>Gerenciar Preferências
+                      </a>
+                      <a href="/historico" class="btn btn-outline-primary">
+                        <i class="bi bi-clock-history me-2"></i>Ver Histórico
+                      </a>
+                      <button onclick="atualizarDadosAmbiente()" class="btn btn-primary">
+                        Atualizar Dados
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- COLUNA 2: Parâmetros Atuais + Médias da Sala + Suas Preferências -->
+            <div class="col-md-4 d-flex">
+              <div class="card dashboard-card w-100 h-100">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                  <div>
+                    <!-- Parâmetros Atuais -->
+                    <h5 class="fw-bold mb-4">Parâmetros Atuais</h5>
+                    <div class="mb-3">
+                      <small class="stats-label d-block mb-1">Temperatura</small>
+                      <h2 class="main-stats mb-0"><span id="temp_atual">--</span>°C</h2>
+                    </div>
+                    <div class="mb-3">
+                      <small class="stats-label d-block mb-1">Luminosidade</small>
+                      <h2 class="main-stats mb-0"><span id="lumi_atual">--</span>%</h2>
+                    </div>
+                    <div class="mb-3">
+                      <small class="stats-label d-block mb-1">Umidade</small>
+                      <h2 class="main-stats mb-0"><span id="humidade_atual">--</span>%</h2>
+                    </div>
+                    <div class="mb-3">
+                      <small class="stats-label d-block mb-1">Pessoas Presentes</small>
+                      <h2 class="main-stats mb-0"><span id="pessoas_presentes">--</span></h2>
+                    </div>
+
+                    <!-- Status das Luzes -->
+                    <h5 class="fw-bold mb-3 mt-4 border-bottom pb-2">Status das Luzes</h5>
+                    <div class="row mb-3">
+                      <div class="col-6">
+                        <div class="d-flex align-items-center mb-2">
+                          <i class="bi bi-lightbulb me-2"></i>
+                          <small class="stats-label">Modo Iluminação:</small>
+                        </div>
+                        <h6 class="mb-0">
+                          <span id="iluminacao_modo" class="badge rounded-pill bg-secondary">--</span>
+                        </h6>
+                      </div>
+                      <div class="col-6">
+                        <div class="d-flex align-items-center mb-2">
+                          <i class="bi bi-sliders me-2"></i>
+                          <small class="stats-label">Intensidade:</small>
+                        </div>
+                        <h6 class="mb-0">
+                          <span id="iluminacao_intensidade" class="badge rounded-pill bg-secondary">--</span>
+                        </h6>
+                      </div>
+                    </div>
+
+                    <!-- Status do Climatizador -->
+                    <h5 class="fw-bold mb-3 mt-4 border-bottom pb-2">Status do Climatizador</h5>
+                    <div class="row mb-3">
+                      <div class="col-6">
+                        <div class="d-flex align-items-center mb-2">
+                          <i class="bi bi-power me-2"></i>
+                          <small class="stats-label">Status:</small>
+                        </div>
+                        <h6 class="mb-0">
+                          <span id="climatizador_status" class="badge rounded-pill bg-secondary">--</span>
+                        </h6>
+                      </div>
+                      <div class="col-6">
+                        <div class="d-flex align-items-center mb-2">
+                          <i class="bi bi-droplet-half me-2"></i>
+                          <small class="stats-label">Umidificação:</small>
+                        </div>
+                        <h6 class="mb-0">
+                          <span id="climatizador_umidificacao" class="badge rounded-pill bg-secondary">--</span>
+                        </h6>
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <div class="col-6">
+                        <div class="d-flex align-items-center mb-2">
+                          <i class="bi bi-wind me-2"></i>
+                          <small class="stats-label">Velocidade: <span class="text-muted">(mantém última
+                              configuração)</span></small>
+                        </div>
+                        <h6 class="mb-0">
+                          <span id="climatizador_velocidade" class="badge rounded-pill bg-secondary">--</span>
+                        </h6>
+                      </div>
+                      <div class="col-6">
+                        <div class="d-flex align-items-center mb-2">
+                          <i class="bi bi-clock me-2"></i>
+                          <small class="stats-label">Timer:</small>
+                        </div>
+                        <h6 class="mb-0">
+                          <span id="climatizador_timer" class="badge rounded-pill bg-secondary">--</span>
+                        </h6>
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <div class="col-6">
+                        <div class="d-flex align-items-center mb-2">
+                          <i class="bi bi-arrow-down-up me-2"></i>
+                          <small class="stats-label">Aleta Vertical:</small>
+                        </div>
+                        <h6 class="mb-0">
+                          <span id="climatizador_aleta_vertical" class="badge rounded-pill bg-secondary">--</span>
+                        </h6>
+                      </div>
+                      <div class="col-6">
+                        <div class="d-flex align-items-center mb-2">
+                          <i class="bi bi-arrow-left-right me-2"></i>
+                          <small class="stats-label">Aleta Horizontal:</small>
+                        </div>
+                        <h6 class="mb-0">
+                          <span id="climatizador_aleta_horizontal" class="badge rounded-pill bg-secondary">--</span>
+                        </h6>
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                          <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-robot me-2"></i>
+                            <small class="stats-label">Modo Climatizador:</small>
+                          </div>
+                          <h6 class="mb-0">
+                            <span id="climatizador_modo_manual" class="badge rounded-pill bg-secondary">--</span>
+                          </h6>
+                        </div>
+                    </div>
+
+
+                    <!-- Médias da Sala -->
+                    <h6 class="fw-bold mb-3">Médias da Sala</h6>
+                    <div class="row justify-content-center text-center mb-4 w-100">
+                      <div class="col-6 d-flex flex-column align-items-center">
+                        <small class="stats-label d-block">Média Preferência Temp.</small>
+                        <h3 class="main-stats mb-0"><span id="temp_preferida_media">--</span>°C</h3>
+                      </div>
+                      <div class="col-6 d-flex flex-column align-items-center">
+                        <small class="stats-label d-block">Média Preferência Lumi.</small>
+                        <h3 class="main-stats mb-0"><span id="lumi_preferida_media">--</span>%</h3>
+                      </div>
+                    </div>
+                    <div class="text-center mb-4">
+                      <small class="stats-label d-block">Nível de Luminosidade Utilizado</small>
+                      <h3 class="main-stats mb-0"><span id="lumi_nivel_utilizado">--</span>%</h3>
+                    </div>
+
+                    <div class="container py-4">
+                      <h5 class="fw-bold mb-3 border-bottom pb-2">Presentes na Sala</h5>
+                      <div class="card shadow-sm mb-4">
+                        <div class="card-body p-0">
+                          <div class="table-responsive">
+                            <table class="table table-hover table-striped table-bordered mb-0">
+                              <thead class="table-light">
+                                <tr class="text-center">
+                                  <th class="fw-bold text-wrap">Nome</th>
+                                  <th class="fw-bold text-wrap">Temperatura Preferida</th>
+                                  <th class="fw-bold text-wrap">Iluminação Preferida</th>
+                                </tr>
+                              </thead>
+                              <tbody id="tabela_presentes" class="align-middle text-center">
+                                <tr class="text-muted">
+                                  <td colspan="3">Nenhum</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Suas Preferências -->
+                    <h6 class="fw-bold mb-3">Suas Preferências</h6>
+                    <div class="row justify-content-center text-center mb-4 w-100">
+                      <div class="col-6 d-flex flex-column align-items-center">
+                        <i class="bi bi-thermometer-half stats-icon mb-1"></i>
+                        <small class="stats-label d-block">Temperatura Preferida</small>
+                        <h3 class="main-stats mb-0">
+                          <%= funcionario.temp_preferida %>°C
+                        </h3>
+                      </div>
+                      <div class="col-6 d-flex flex-column align-items-center">
+                        <i class="bi bi-brightness-high stats-icon mb-1"></i>
+                        <small class="stats-label d-block">Luminosidade Preferida</small>
+                        <h3 class="main-stats mb-0">
+                          <%= funcionario.lumi_preferida %>%
+                        </h3>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- COLUNA 3: Controles e Tabela de Presentes -->
+            <div class="col-md-4 d-flex">
+              <div class="card dashboard-card w-100 h-100">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                  <div>
+                    <!-- Controles -->
+                    <h5 class="fw-bold mb-3">Ativar Controles Manuais</h5>
+
+                    <!-- Controles Manuais Protegidos por Senha -->
+                    <div class="mb-4">
+                      <h6 class="fw-bold mb-3">Controle Manual Total (Protegido)</h6>
+                      <div id="loginManual">
+                        <label class="form-label" for="senhaManual">Digite a senha</label>
+                        <input type="password" id="senhaManual" class="form-control" placeholder="Senha">
+                        <button class="btn btn-primary w-100 mt-2" onclick="verificarSenhaManual()">Acessar</button>
+                        <p id="erroManual" class="text-danger mt-2"></p>
+                      </div>
+                      <div id="controlesManuais" class="hidden">
+                        <!-- Intensidade da Luminosidade (Destacado) -->
+                        <div class="mb-4 p-3 highlight-container rounded">
+                          <label class="form-label fw-bold">Intensidade da Luminosidade</label>
+                          <div class="btn-group w-100 mb-2" role="group" style="flex-wrap: nowrap;">
+                            <button type="button" class="btn btn-primary"
+                              style="flex: 1; min-width: 0; padding: 0.25rem 0.5rem;"
+                              onclick="enviarComandoManual(0)">0%</button>
+                            <button type="button" class="btn btn-primary"
+                              style="flex: 1; min-width: 0; padding: 0.25rem 0.5rem;"
+                              onclick="enviarComandoManual(25)">25%</button>
+                            <button type="button" class="btn btn-primary"
+                              style="flex: 1; min-width: 0; padding: 0.25rem 0.5rem;"
+                              onclick="enviarComandoManual(50)">50%</button>
+                            <button type="button" class="btn btn-primary"
+                              style="flex: 1; min-width: 0; padding: 0.25rem 0.5rem;"
+                              onclick="enviarComandoManual(75)">75%</button>
+                            <button type="button" class="btn btn-primary"
+                              style="flex: 1; min-width: 0; padding: 0.25rem 0.5rem;"
+                              onclick="enviarComandoManual(100)">100%</button>
+                          </div>
+                          <small class="text-muted d-block mb-2">Selecione o nível de luminosidade</small>
+                        </div>
+
+                        <!-- Controles do Climatizador -->
+                        <div class="mb-3">
+                          <h6 class="fw-bold mb-3">Controles do Climatizador</h6>
+                          <div class="card p-3 mb-3">
+                            <p class="text-center mb-2"><small class="stats-label">Status atual</small></p>
+                            <div class="d-flex justify-content-around mb-2">
+                              <span class="badge bg-primary" id="status_power">LIGADO/DESLIGADO</span>
+                              <span class="badge bg-info" id="status_umid">UMIDIFICAÇÃO</span>
+                            </div>
+                            <hr>
+                            <div class="d-grid gap-2 mb-2">
+                              <!-- Ligar/Desligar -->
+                              <button class="btn btn-outline-success" id="btn_power" onclick="enviarComandoClimatizador('power')">
+                                <i class="bi bi-power me-2"></i>Ligar/Desligar
+                              </button>
+                              <!-- Umidificar -->
+                              <button class="btn btn-outline-primary" id="btn_umid" onclick="enviarComandoClimatizador('umidificar')">
+                                <i class="bi bi-droplet-half me-2"></i>Umidificar
+                              </button>
+                            </div>
+                          </div>
+
+                          <div class="card p-3 mb-3">
+                            <p class="text-center mb-2"><small class="stats-label">Velocidade: <span
+                                  id="status_vel">--</span></small></p>
+                            <div class="d-grid">
+                              <!-- Velocidade -->
+                              <button class="btn btn-outline-primary" onclick="enviarComandoClimatizador('velocidade')">
+                                <i class="bi bi-wind me-2"></i>Alterar Velocidade
+                              </button>
+                            </div>
+                          </div>
+
+                          <div class="card p-3 mb-3">
+                            <p class="text-center mb-2"><small class="stats-label">Timer: <span
+                                  id="status_timer">--</span></small></p>
+                            <div class="d-grid">
+                              <!-- Timer -->
+                              <button class="btn btn-outline-dark" onclick="enviarComandoClimatizador('timer')">
+                                <i class="bi bi-clock me-2"></i>Alterar Timer
+                              </button>
+                            </div>
+                          </div>
+
+                          <div class="card p-3">
+                            <p class="text-center mb-2"><small class="stats-label">Movimentos das Aletas</small></p>
+                            <div class="d-flex justify-content-around mb-2">
+                              <span class="badge bg-secondary" id="status_aleta_v">VERTICAL</span>
+                              <span class="badge bg-secondary" id="status_aleta_h">HORIZONTAL</span>
+                            </div>
+                            <div class="d-grid gap-2">
+                              <!-- Aleta automática (cima-baixo) -->
+                              <button class="btn btn-outline-warning" onclick="enviarComandoClimatizador('aleta_vertical')">
+                                <i class="bi bi-arrow-down-up me-2"></i>Aleta Vertical (Cima/Baixo)
+                              </button>
+                              <!-- Aleta automática (esquerda-direita) -->
+                              <button class="btn btn-outline-info" onclick="enviarComandoClimatizador('aleta_horizontal')">
+                                <i class="bi bi-arrow-left-right me-2"></i>Aleta Horizontal (Esq/Dir)
+                              </button>
+                            </div>
+                          </div>
+                          <!-- Botão Restaurar Automático -->
+                          <div class="d-grid mt-3">
+                            <button class="btn btn-danger" id="btn_restaurar_automatico"
+                              onclick="restaurarModoAuto()">
+                              <i class="bi bi-arrow-repeat me-2"></i>Restaurar Automático
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <% } else { %>
+          <script>
+            window.location.href = '/inicio';
+          </script>
+          <% } %>
+
+            <%- include('partials/footer.ejs') %>
+              <%- include('./partials/vlibras.ejs') %>
+
+                <script>
+                  const SENHA_CORRETA = "unifeob"; // Substitua pela sua senha real, se necessário
+
+                  // Função para mostrar o modal com título e mensagem
+                  function mostrarModal(titulo, mensagem) {
+                    const modalTitle = document.getElementById('feedbackModalLabel');
+                    const modalBody = document.getElementById('feedbackModalBody');
+
+                    modalTitle.textContent = titulo;
+                    modalBody.textContent = mensagem;
+
+                    var myModal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+                    const modalElement = document.getElementById('feedbackModal');
+                    modalElement.addEventListener('hidden.bs.modal', function () {
+                      const backdrop = document.querySelector('.modal-backdrop');
+                      if (backdrop) {
+                        backdrop.remove();
+                      }
+                      document.body.classList.remove('modal-open');
+                      document.body.style.overflow = '';
+                      document.body.style.paddingRight = '';
+                    }, { once: true });
+
+                    myModal.show();
+                  }
+
+                  // Função para mostrar modal do tipo processamento (sem botão de fechar)
+                  function mostrarModalProcessamento(titulo, mensagem) {
+                    const modalElement = document.getElementById('feedbackModal');
+                    const closeBtn = modalElement.querySelector('.btn-close');
+                    const footerBtn = modalElement.querySelector('.modal-footer button');
+
+                    if (closeBtn) closeBtn.style.display = 'none';
+                    if (footerBtn) footerBtn.style.display = 'none';
+
+                    document.getElementById('feedbackModalLabel').textContent = titulo;
+                    document.getElementById('feedbackModalBody').textContent = mensagem;
+
+                    var myModal = new bootstrap.Modal(modalElement, {
+                      backdrop: 'static',
+                      keyboard: false
+                    });
+
+                    myModal.show();
+                    return { modal: myModal, elemento: modalElement };
+                  }
+
+                  // Função para fechar modal de processamento e restaurar botões
+                  function fecharModalProcessamento(modalInfo, mostrarNovoModal = false, titulo = '', mensagem = '') {
+                    const closeBtn = modalInfo.elemento.querySelector('.btn-close');
+                    const footerBtn = modalInfo.elemento.querySelector('.modal-footer button');
+
+                    if (closeBtn) closeBtn.style.display = '';
+                    if (footerBtn) footerBtn.style.display = '';
+
+                    modalInfo.modal.hide();
+
+                    if (mostrarNovoModal) {
+                      setTimeout(() => {
+                        mostrarModal(titulo, mensagem);
+                      }, 100);
+                    }
+                  }
+
+                  // Função para verificar a senha e autorizar controles manuais
+                  function verificarSenhaManual() {
+                    const pessoasPresentes = parseInt(document.getElementById('pessoas_presentes').textContent) || 0;
+                    if (pessoasPresentes === 0) {
+                      mostrarModal('Informação', 'A sala está vazia. Os controles manuais estão desativados.');
+                      return;
+                    }
+
+                    const senha = document.getElementById('senhaManual').value.trim();
+                    if (!senha) {
+                      mostrarModal('Erro', 'Por favor, insira a senha');
+                      return;
+                    }
+                    if (senha === SENHA_CORRETA) {
+                      document.getElementById('loginManual').classList.add('hidden');
+                      document.getElementById('controlesManuais').classList.remove('hidden');
+                      document.getElementById('erroManual').textContent = '';
+                      document.getElementById('senhaManual').value = ''; // Limpa o campo de senha
+                    } else {
+                      mostrarModal('Erro', 'Senha incorreta');
+                    }
+                  }
+
+                  // Função para atualizar os dados do ambiente
+                  function atualizarDadosAmbiente() {
+                    fetch('/esp32/ambiente', {
+                      credentials: 'include'
+                    })
+                      .then(response => {
+                        if (!response.ok) {
+                          console.error('Erro na resposta:', response.status);
+                          // Se o erro for de autenticação (401), redireciona
+                          if (response.status === 401) {
+                            window.location.href = '/inicio';
+                          }
+                          return Promise.reject('Erro na resposta'); // Propaga o erro
+                        }
+                        return response.json();
+                      })
+                      .then(data => {
+                        if (data) {
+                          document.getElementById('temp_atual').textContent = data.atualizado && data.temperatura !== null ? data.temperatura : '--';
+                          document.getElementById('lumi_atual').textContent = data.atualizado && data.luminosidade !== null ? data.luminosidade : '--';
+                          document.getElementById('humidade_atual').textContent = data.atualizado && data.humidade !== null ? data.humidade : '--';
+                          document.getElementById('pessoas_presentes').textContent = data.atualizado ? data.pessoas : '--';
+                          document.getElementById('temp_preferida_media').textContent = data.tempPreferidaMedia !== null ? data.tempPreferidaMedia : '--';
+                          document.getElementById('lumi_preferida_media').textContent = data.lumiPreferidaMedia !== null ? data.lumiPreferidaMedia : '--';
+                          document.getElementById('lumi_nivel_utilizado').textContent = data.lumiNivelUtilizado !== null ? data.lumiNivelUtilizado : '--';
+
+                          // Atualizar status das luzes
+                          const modoBadge = document.getElementById('iluminacao_modo');
+                          const intensidadeBadge = document.getElementById('iluminacao_intensidade');
+
+                          // Verificar modo automático ou manual de iluminação
+                          if (data.modoManualIluminacao === true) { // Nova flag
+                            modoBadge.textContent = 'MANUAL';
+                            modoBadge.className = 'badge rounded-pill bg-warning text-dark';
+                          } else {
+                            modoBadge.textContent = 'AUTOMÁTICO';
+                            modoBadge.className = 'badge rounded-pill bg-info';
+                          }
+
+                          // Mostrar intensidade da iluminação
+                          if (data.luminosidade > 0) {
+                            intensidadeBadge.textContent = data.luminosidade + '%';
+                            if (data.luminosidade <= 25) {
+                              intensidadeBadge.className = 'badge rounded-pill bg-secondary';
+                            } else if (data.luminosidade <= 50) {
+                              intensidadeBadge.className = 'badge rounded-pill bg-primary';
+                            } else if (data.luminosidade <= 75) {
+                              intensidadeBadge.className = 'badge rounded-pill bg-info';
+                            } else {
+                              intensidadeBadge.className = 'badge rounded-pill bg-success';
+                            }
+                          } else {
+                            intensidadeBadge.textContent = 'DESLIGADO';
+                            intensidadeBadge.className = 'badge rounded-pill bg-danger';
+                          }
+
+                          // Atualizar status do climatizador (section principal)
+                          const climatizadorStatusElement = document.getElementById('climatizador_status');
+                          if (data.climatizador_ligado) {
+                            climatizadorStatusElement.textContent = 'LIGADO';
+                            climatizadorStatusElement.className = 'badge rounded-pill bg-success';
+                          } else {
+                            climatizadorStatusElement.textContent = 'DESLIGADO';
+                            climatizadorStatusElement.className = 'badge rounded-pill bg-danger';
+                          }
+
+                          const climatizadorUmidElement = document.getElementById('climatizador_umidificacao');
+                          if (data.climatizador_umidificando) {
+                            climatizadorUmidElement.textContent = 'ATIVA';
+                            climatizadorUmidElement.className = 'badge rounded-pill bg-info';
+                          } else {
+                            climatizadorUmidElement.textContent = 'INATIVA';
+                            climatizadorUmidElement.className = 'badge rounded-pill bg-secondary';
+                          }
+
+                          const climatizadorVelElement = document.getElementById('climatizador_velocidade');
+                          // Usa a velocidade atual se > 0, senão a última conhecida para exibir quando desligado
+                          const velocidadeEfetiva = data.climatizador_velocidade > 0 ?
+                            data.climatizador_velocidade :
+                            (data.climatizador_ultima_velocidade > 0 ? data.climatizador_ultima_velocidade : 2); // 2 é o padrão
+
+                          const nivelVelocidade = ['DESLIGADO', 'BAIXA', 'MÉDIA', 'ALTA'][velocidadeEfetiva] || 'MÉDIA';
+                          climatizadorVelElement.textContent = nivelVelocidade;
+                          climatizadorVelElement.className = 'badge rounded-pill bg-primary';
+
+
+                          const climatizadorTimerElement = document.getElementById('climatizador_timer');
+                          if (data.climatizador_timer > 0) {
+                            climatizadorTimerElement.textContent = data.climatizador_timer + ' H';
+                            climatizadorTimerElement.className = 'badge rounded-pill bg-warning text-dark';
+                          } else {
+                            climatizadorTimerElement.textContent = 'DESLIGADO';
+                            climatizadorTimerElement.className = 'badge rounded-pill bg-secondary';
+                          }
+
+                          const climatizadorAletaVElement = document.getElementById('climatizador_aleta_vertical');
+                          if (data.climatizador_aleta_vertical) {
+                            climatizadorAletaVElement.textContent = 'ATIVA';
+                            climatizadorAletaVElement.className = 'badge rounded-pill bg-success';
+                          } else {
+                            climatizadorAletaVElement.textContent = 'PARADA';
+                            climatizadorAletaVElement.className = 'badge rounded-pill bg-secondary';
+                          }
+
+                          const climatizadorAletaHElement = document.getElementById('climatizador_aleta_horizontal');
+                          if (data.climatizador_aleta_horizontal) {
+                            climatizadorAletaHElement.textContent = 'ATIVA';
+                            climatizadorAletaHElement.className = 'badge rounded-pill bg-success';
+                          } else {
+                            climatizadorAletaHElement.textContent = 'PARADA';
+                            climatizadorAletaHElement.className = 'badge rounded-pill bg-secondary';
+                          }
+
+                          // Modo manual do climatizador
+                          const climatizadorModoManualElement = document.getElementById('climatizador_modo_manual');
+                          if (data.modoManualClimatizador) {
+                            climatizadorModoManualElement.textContent = 'MANUAL';
+                            climatizadorModoManualElement.className = 'badge rounded-pill bg-warning text-dark';
+                          } else {
+                            climatizadorModoManualElement.textContent = 'AUTOMÁTICO';
+                            climatizadorModoManualElement.className = 'badge rounded-pill bg-info';
+                          }
+
+
+                          // Desativar modo manual se a sala estiver vazia
+                          if (data.pessoas === 0) { // Usa data.pessoas diretamente
+                            const controlesManuais = document.getElementById('controlesManuais');
+                            const loginManual = document.getElementById('loginManual');
+                            if (!controlesManuais.classList.contains('hidden')) {
+                              controlesManuais.classList.add('hidden');
+                              loginManual.classList.remove('hidden');
+                              document.getElementById('senhaManual').value = ''; // Limpa o campo de senha
+                              document.getElementById('erroManual').textContent = '';
+                              mostrarModal('Informação', 'A sala está vazia. Todos os controles estão desativados.');
+                              restaurarModoAuto(); // Envia comando para restaurar modo automático
+                            }
+                          }
+
+                          const tbody = document.getElementById('tabela_presentes');
+                          tbody.innerHTML = '';
+                          if (data.presentes && data.presentes.length > 0) {
+                            data.presentes.forEach(p => {
+                              const tr = document.createElement('tr');
+                              tr.innerHTML = `
+                                <td>${p.nome}</td>
+                                <td>${p.temp_preferida}°C</td>
+                                <td>${p.lumi_preferida}%</td>
+                              `;
+                              tbody.appendChild(tr);
+                            });
+                          } else {
+                            tbody.innerHTML = '<tr><td colspan="3">Nenhum</td></tr>';
+                          }
+
+                          // Chamar atualização dos controles manuais após a atualização principal do ambiente
+                          atualizarStatusControles();
+                        }
+                      })
+                      .catch(error => {
+                        console.error('Erro ao atualizar dados:', error);
+                        // Apenas mostra erro, não redireciona para /inicio se o erro não for de autenticação
+                        if (error !== 'Erro na resposta') { // Evita modal duplicado se já houve redirecionamento
+                            mostrarModal('Erro', 'Erro ao atualizar dados do ambiente. Verifique a conexão com o servidor.');
+                        }
+                      });
+                  }
+
+                  // Função para enviar comandos manuais de iluminação
+                  function enviarComandoManual(nivel) {
+                    const pessoasPresentes = parseInt(document.getElementById('pessoas_presentes').textContent) || 0;
+                    if (pessoasPresentes === 0) {
+                      mostrarModal('Informação', 'A sala está vazia. Os controles manuais estão desativados.');
+                      return;
+                    }
+                    fetch('/esp32/manual', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
+                      body: JSON.stringify({ luminosidade: nivel })
+                    })
+                      .then(response => response.json())
+                      .then(data => {
+                        if (data.success) {
+                          mostrarModal('Sucesso', `Comando manual de iluminação enviado: ${nivel}%`);
+                          atualizarDadosAmbiente(); // Atualiza para refletir o estado
+                        } else {
+                          mostrarModal('Erro', data.error || 'Erro ao enviar comando de iluminação');
+                        }
+                      })
+                      .catch(err => {
+                        console.error('Erro ao enviar comando manual de iluminação:', err);
+                        mostrarModal('Erro', 'Erro na comunicação com o servidor para iluminação');
+                      });
+                  }
+
+                  // Função para restaurar o modo automático (iluminação e climatizador)
+                  function restaurarModoAuto() {
+                    // Desativa modo manual da iluminação
+                    fetch('/esp32/manual', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
+                      body: JSON.stringify({ luminosidade: 'auto' })
+                    })
+                    .then(response => {
+                        if (!response.ok) return Promise.reject(`HTTP error! status: ${response.status}`);
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.success) return Promise.reject('Erro ao restaurar modo automático da iluminação');
+                        // Após desativar modo manual da iluminação, desativa o modo manual do climatizador
+                        return fetch('/esp32/climatizador/comando', { // Usar a rota de comando para climatizador
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ comando: 'auto' }) // Envia comando 'auto' para o climatizador
+                        });
+                    })
+                    .then(response => {
+                        if (!response.ok) return Promise.reject(`HTTP error! status: ${response.status}`);
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            mostrarModal('Sucesso', 'Modo automático restaurado para iluminação e climatizador.');
+                            atualizarDadosAmbiente(); // Atualiza para refletir o estado
+                        } else {
+                            mostrarModal('Erro', 'Falha ao restaurar modo automático do climatizador.');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Erro ao restaurar modo automático:', err);
+                        mostrarModal('Erro', 'Erro ao restaurar modo automático. Verifique a conexão.');
+                    });
+                }
+
+                  // Função para enviar comandos para o climatizador
+                  function enviarComandoClimatizador(funcao) {
+                    const pessoasPresentes = parseInt(document.getElementById('pessoas_presentes').textContent) || 0;
+                    if (pessoasPresentes === 0) {
+                      mostrarModal('Informação', 'A sala está vazia. Os controles estão desativados.');
+                      return;
+                    }
+
+                    const climatizadorLigado = document.getElementById('climatizador_status').textContent === 'LIGADO';
+
+                    if (!climatizadorLigado && funcao !== 'power') {
+                      mostrarModal('Climatizador Desligado', 'O climatizador está desligado. Ligue-o primeiro para enviar comandos manuais (exceto Ligar/Desligar).');
+                      return;
+                    }
+
+                    // Atualizar status visual na interface enquanto processa
+                    atualizarStatusVisualComando(funcao, true);
+
+                    fetch('/esp32/climatizador/comando', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
+                      body: JSON.stringify({ comando: funcao })
+                    })
+                      .then(res => {
+                        if (!res.ok) {
+                          console.error('Erro na resposta:', res.status);
+                          if (res.status === 401) { // Unauthorized
+                              mostrarModal('Erro', 'Sessão expirada. Por favor, faça login novamente.');
+                              window.location.href = '/inicio';
+                          } else {
+                            mostrarModal('Erro', 'Erro ao enviar comando. Tente novamente.');
+                          }
+                          return Promise.reject('HTTP error ' + res.status);
+                        }
+                        return res.json();
+                      })
+                      .then(data => {
+                        if (data && data.success) {
+                          // Não mostrar modal de sucesso imediato, esperar a atualização do ESP32
+                          // A mensagem de processamento já está visível
+                        } else {
+                          mostrarModal('Erro', data.error || 'Erro ao enviar comando');
+                        }
+                        // Atualizar dados do ambiente e controles após um tempo para o ESP32 processar
+                        setTimeout(() => {
+                          atualizarDadosAmbiente();
+                        }, 2000); // Reduzido para 2 segundos, já que o ESP32 agora é mais rápido
+                      })
+                      .catch(err => {
+                        console.error('Erro na requisição:', err);
+                        if (err !== 'HTTP error 401') { // Evita modal duplicado se já houve redirecionamento
+                            mostrarModal('Erro', 'Erro na comunicação com o servidor');
+                        }
+                      });
+                  }
+
+                  // Função auxiliar para snapping de luminosidade (já está no Node.js e no ESP32, duplicado para o JS do frontend para consistência)
+                  function nivelValido(media) {
+                    if (media === 0) return 0;
+                    const niveis = [0, 25, 50, 75, 100];
+                    for (let i = 0; i < niveis.length - 1; i++) {
+                      if (media > niveis[i] && media <= niveis[i + 1]) {
+                        return niveis[i + 1];
+                      }
+                    }
+                    return 100;
+                  }
+
+                  // Atualiza visualmente o status dos comandos na interface (para feedback imediato)
+                  function atualizarStatusVisualComando(comando, processando = false) {
+                    const statusElements = {
+                        'power': document.getElementById('status_power'),
+                        'umidificar': document.getElementById('status_umid'),
+                        'velocidade': document.getElementById('status_vel'),
+                        'timer': document.getElementById('status_timer'),
+                        'aleta_vertical': document.getElementById('status_aleta_v'),
+                        'aleta_horizontal': document.getElementById('status_aleta_h')
+                    };
+                    const isBadge = ['power', 'umidificar', 'aleta_vertical', 'aleta_horizontal'].includes(comando);
+
+                    if (processando) {
+                        if (statusElements[comando]) {
+                            statusElements[comando].textContent = 'PROCESSANDO...';
+                            if (isBadge) {
+                                statusElements[comando].className = 'badge bg-warning text-dark';
+                            } else {
+                                statusElements[comando].className = 'text-warning';
+                            }
+                        }
+                    }
+                    // A atualização final para o estado real é feita por atualizarDadosAmbiente
+                  }
+
+                  // Função para atualizar os status dos controles do climatizador (do estado atual do servidor)
+                  function atualizarStatusControles() {
+                    fetch('/esp32/climatizador/estado', {
+                      credentials: 'include'
+                    })
+                      .then(response => {
+                        if (!response.ok) {
+                          console.error('Erro na resposta:', response.status);
+                          return Promise.reject('Erro na resposta');
+                        }
+                        return response.json();
+                      })
+                      .then(data => {
+                        if (data) {
+                          // Atualizar status power
+                          const statusPower = document.getElementById('status_power');
+                          if (data.ligado) {
+                            statusPower.textContent = 'LIGADO';
+                            statusPower.className = 'badge bg-success';
+                            document.getElementById('btn_power').classList.remove('btn-outline-success');
+                            document.getElementById('btn_power').classList.add('btn-success');
+                          } else {
+                            statusPower.textContent = 'DESLIGADO';
+                            statusPower.className = 'badge bg-danger';
+                            document.getElementById('btn_power').classList.remove('btn-success');
+                            document.getElementById('btn_power').classList.add('btn-outline-success');
+                          }
+
+                          // Atualizar status umidificação
+                          const statusUmid = document.getElementById('status_umid');
+                          if (data.umidificando) {
+                            statusUmid.textContent = 'ATIVA';
+                            statusUmid.className = 'badge bg-info';
+                            document.getElementById('btn_umid').classList.remove('btn-outline-primary');
+                            document.getElementById('btn_umid').classList.add('btn-primary');
+                          } else {
+                            statusUmid.textContent = 'INATIVA';
+                            statusUmid.className = 'badge bg-secondary';
+                            document.getElementById('btn_umid').classList.remove('btn-primary');
+                            document.getElementById('btn_umid').classList.add('btn-outline-primary');
+                          }
+
+                          // Atualizar status velocidade
+                          const statusVel = document.getElementById('status_vel');
+                          const velocidadeEfetiva = data.velocidade > 0 ? data.velocidade : (data.ultima_velocidade > 0 ? data.ultima_velocidade : 2);
+                          const nivelVelocidade = ['DESLIGADO', 'BAIXA', 'MÉDIA', 'ALTA'][velocidadeEfetiva] || 'MÉDIA';
+                          statusVel.textContent = nivelVelocidade;
+                          statusVel.className = 'text-primary';
+                          
+                          // Atualizar status timer
+                          const statusTimer = document.getElementById('status_timer');
+                          if (data.timer > 0) {
+                            statusTimer.textContent = data.timer + ' H';
+                            statusTimer.className = 'text-warning';
+                          } else {
+                            statusTimer.textContent = 'DESLIGADO';
+                            statusTimer.className = 'text-secondary';
+                          }
+
+                          // Atualizar status aletas
+                          const statusAletaV = document.getElementById('status_aleta_v');
+                          if (data.aleta_vertical) {
+                            statusAletaV.textContent = 'ATIVA';
+                            statusAletaV.className = 'badge bg-success';
+                          } else {
+                            statusAletaV.textContent = 'PARADA';
+                            statusAletaV.className = 'badge bg-secondary';
+                          }
+
+                          const statusAletaH = document.getElementById('status_aleta_h');
+                          if (data.aleta_horizontal) {
+                            statusAletaH.textContent = 'ATIVA';
+                            statusAletaH.className = 'badge bg-success';
+                          } else {
+                            statusAletaH.textContent = 'PARADA';
+                            statusAletaH.className = 'badge bg-secondary';
+                          }
+                        }
+                      })
+                      .catch(error => {
+                        console.error('Erro ao atualizar status dos controles:', error);
+                      });
+                  }
+
+                  // Inicializa a página
+                  atualizarDadosAmbiente();
+                  setInterval(() => {
+                    atualizarDadosAmbiente();
+                  }, 5000); // Atualização a cada 10 segundos para reduzir carga no servidor e ESP32
+                </script>
+                <style>
+                  .hidden {
+                    display: none;
+                  }
+
+                  /* Garantir que o modal backdrop seja removido corretamente */
+                  body.modal-open {
+                    overflow: hidden;
+                  }
+
+                  /* Estilo para ocultar qualquer backdrop persistente */
+                  .modal-backdrop.show {
+                    z-index: 1040;
+                  }
+                </style>
+    </body>

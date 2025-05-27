@@ -1,0 +1,63 @@
+<div class="modal fade" id="alertModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title font-scale" id="alertModalTitle">Aviso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="font-scale" id="alertModalMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary font-scale" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showAlert(title, message) {
+    const modal = new bootstrap.Modal(document.getElementById('alertModal'));
+    document.getElementById('alertModalTitle').textContent = title;
+    document.getElementById('alertModalMessage').textContent = message;
+    
+    // Adicionar listener para garantir que o backdrop seja removido
+    const modalElement = document.getElementById('alertModal');
+    modalElement.addEventListener('hidden.bs.modal', function () {
+        // Remover qualquer backdrop remanescente
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+        // Remover a classe 'modal-open' do body
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+    }, { once: true });
+    
+    modal.show();
+}
+
+function handleError(error, defaultMessage = 'Ocorreu um erro inesperado') {
+    let message = defaultMessage;
+    if (error.message) {
+        switch(error.message) {
+            case 'Failed to fetch':
+                message = 'Não foi possível conectar ao servidor. Verifique sua conexão.';
+                break;
+            case 'Network Error':
+                message = 'Erro de conexão. Verifique se você está conectado à internet.';
+                break;
+            case 'Not Found':
+                message = 'Recurso não encontrado.';
+                break;
+            case 'Unauthorized':
+                message = 'Você não está autorizado a realizar esta ação.';
+                break;
+            default:
+                message = error.message;
+        }
+    }
+    showAlert('Erro', message);
+}
+</script>

@@ -1,0 +1,86 @@
+<%- include('partials/header.ejs') %>
+    <%- include('partials/menu.ejs') %>
+
+        <body>
+            <div class="container mt-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="text-center font-scale">Meus Dados</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-4">
+                                    <% if (funcionario.foto) { %>
+                                        <img src="/uploads/<%= funcionario.foto %>" alt="Foto de perfil"
+                                            class="profile-img rounded-circle">
+                                        <% } else { %>
+                                            <img src="/images/perfil-default.png" alt="Foto de perfil padrão"
+                                                class="profile-img rounded-circle">
+                                            <% } %>
+
+                                                <form id="formAlterarFoto" action="/funcionario/alterar-foto"
+                                                    method="POST" class="mt-4" enctype="multipart/form-data">
+                                                    <input type="hidden" name="matricula"
+                                                        value="<%= funcionario.matricula %>">
+                                                    <input type="file" name="novaFoto" id="inputFoto" accept="image/*"
+                                                        style="display: none;"
+                                                        onchange="document.getElementById('formAlterarFoto').submit()">
+                                                    <button type="button" class="btn btn-sm btn-laranja"
+                                                        onclick="document.getElementById('inputFoto').click()">Alterar
+                                                        Foto</button>
+                                                </form>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label font-scale">Matrícula</label>
+                                        <p class="form-control font-scale">
+                                            <%= funcionario.matricula %>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label font-scale">Nome Completo</label>
+                                        <p class="form-control font-scale">
+                                            <%= funcionario.nome %>
+                                                <%= funcionario.sobrenome %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label font-scale">Temperatura Preferida</label>
+                                        <p class="form-control font-scale">
+                                            <%= funcionario.temp_preferida %>°C
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label font-scale">Luminosidade Preferida</label>
+                                        <p class="form-control font-scale">
+                                            <%= funcionario.lumi_preferida %>%
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <% if (funcionario.tag_nfc) { %>
+                                    <div class="mb-3">
+                                        <label class="form-label">Tag NFC</label>
+                                        <p class="form-control">
+                                            <%= funcionario.tag_nfc %>
+                                        </p>
+                                    </div>
+                                    <% } %>
+
+                                        <div class="text-center">
+                                            <a href="/preferencias" class="btn btn-primary">Gerenciar Preferências</a>
+                                        </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <%- include('partials/footer.ejs') %>
+                <%- include('./partials/vlibras.ejs') %>
+        </body>

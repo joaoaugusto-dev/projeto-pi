@@ -1,0 +1,120 @@
+<%- include('./confirmLogoutModal.ejs') %>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <% if (!user) { %>
+    <a class="navbar-brand" href="/inicio" id="font-navbar">
+      <img src="../../images/PackBag-Logo-Original-HOR.png" alt="Logo" class="logo-nav">
+    </a>
+    <% } %>
+    <% if (user) { %>
+    <a class="navbar-brand" href="/" id="font-navbar">
+      <img src="../../images/PackBag-Logo-Original-HOR.png" alt="Logo" class="logo-nav">
+    </a>
+    <% } %>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+    aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item theme-control">
+          <button id="lightThemeBtn" title="Tema Claro" class="theme-btn" onclick="setTheme('light')">☀️</button>
+          <button id="darkThemeBtn" title="Tema Escuro" class="theme-btn" onclick="setTheme('dark')">🌙</button>
+          <button id="contrastThemeBtn" title="Alto Contraste" class="theme-btn" onclick="setTheme('high-contrast')">◐</button>
+        </li>
+        
+        <li class="nav-item font-control">
+          <button id="decreaseFontBtn" class="font-btn" title="Diminuir fonte" onclick="decreaseFont()">A-</button>
+          <button id="increaseFontBtn" class="font-btn" title="Aumentar fonte" onclick="increaseFont()">A+</button>
+        </li>
+
+        <% if (!user) { %>
+          <li class="nav-item">
+            <a class="nav-link btn btn-outline-primary mx-2 px-4" href="/entrar">Entrar</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link btn btn-primary mx-2 px-4" href="/cadastro">Cadastrar</a>
+          </li>
+        <% } %>        <% if (user) { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/preferencias">Preferências</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/historico">Histórico</a>
+          </li>
+          <li class="nav-item me-2">
+            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#confirmLogoutModal">Sair</a>
+          </li>
+          <li class="nav-item">
+            <div class="zoom-profile">
+              <a href="/dados">
+                <% if (funcionario && funcionario.foto) { %>
+                  <img class="profile-img-small rounded-circle border border-2 border-white" alt="foto-de-perfil" 
+                       src="/uploads/<%= funcionario.foto %>">
+                <% } else { %>
+                  <img class="profile-img-small rounded-circle border border-2 border-white" alt="foto-de-perfil" 
+                       src="/images/perfil-default.png">
+                <% } %>
+              </a>
+            </div>
+          </li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<script>
+  let currentFontSize = parseInt(localStorage.getItem('fontSize')) || 16;
+  const minFontSize = 14;
+  const maxFontSize = 20;
+
+  function updateFontSize() {
+    document.body.style.fontSize = currentFontSize + 'px';
+    localStorage.setItem('fontSize', currentFontSize);
+    
+    document.getElementById('decreaseFontBtn').disabled = currentFontSize <= minFontSize;
+    document.getElementById('increaseFontBtn').disabled = currentFontSize >= maxFontSize;
+  }
+
+  function increaseFont() {
+    if (currentFontSize < maxFontSize) {
+      currentFontSize += 2;
+      updateFontSize();
+    }
+  }
+
+  function decreaseFont() {
+    if (currentFontSize > minFontSize) {
+      currentFontSize -= 2;
+      updateFontSize();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateFontSize();
+  });
+
+  let currentTheme = localStorage.getItem('theme') || 'light';
+
+  function setTheme(theme) {
+    currentTheme = theme;
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    
+    document.getElementById('lightThemeBtn').classList.toggle('active', theme === 'light');
+    document.getElementById('darkThemeBtn').classList.toggle('active', theme === 'dark');
+    document.getElementById('contrastThemeBtn').classList.toggle('active', theme === 'high-contrast');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateFontSize();
+    setTheme(currentTheme);
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const theme = localStorage.getItem('theme') || 'light';
+    setTheme(theme);
+  });
+</script>

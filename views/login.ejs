@@ -1,0 +1,93 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="/css/styles.css" rel="stylesheet">
+  </head>
+  <%- include('partials/header.ejs') %>
+  <%- include('partials/menu.ejs') %>
+  <%- include('partials/alertModal.ejs') %>
+
+  <body>
+    <div class="container mt-5">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header text-center">
+              <h2 class="font-scale">Login</h2>
+            </div>
+            <div class="card-body">
+              <form id="loginForm" class="fade-in-up">
+                <div class="mb-3">
+                  <label for="matricula" class="form-label font-scale">Matrícula</label>
+                  <input type="number" class="form-control font-scale" id="matricula" name="matricula" required>
+                </div>
+                <div class="mb-3">
+                  <label for="senha" class="form-label font-scale">Senha</label>
+                  <div class="password-field">
+                    <input type="password" class="form-control font-scale" id="senha" name="senha" required>
+                    <button type="button" class="password-toggle" id="togglePassword">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary font-scale">Entrar</button>
+                </div>
+                <div class="text-center mt-3">
+                  <a href="/cadastro" class="btn btn-outline-primary">Cadastre-se</a>
+                </div>
+                <div id="errorMessage" class="text-danger mt-3 font-scale"></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        try {
+          const response = await fetch('/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              matricula: document.getElementById('matricula').value,
+              senha: document.getElementById('senha').value
+            })
+          });
+
+          if (response.ok) {
+            window.location.href = '/';
+          } else {
+            const data = await response.json();
+            showAlert('Erro de Login', data.message || 'Credenciais inválidas');
+          }
+        } catch (error) {
+          handleError(error, 'Erro ao fazer login');
+        }
+      });
+
+      // Lógica para mostrar/ocultar senha
+      const togglePassword = document.getElementById('togglePassword');
+      const senha = document.getElementById('senha');
+
+      togglePassword.addEventListener('click', function() {
+        const type = senha.getAttribute('type') === 'password' ? 'text' : 'password';
+        senha.setAttribute('type', type);
+        this.querySelector('i').classList.toggle('bi-eye');
+        this.querySelector('i').classList.toggle('bi-eye-slash');
+      });
+    </script>
+
+    <%- include('partials/footer.ejs') %>
+    <%- include('./partials/vlibras.ejs') %>
+  </body>
+  </html>

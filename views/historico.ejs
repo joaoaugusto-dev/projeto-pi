@@ -1,0 +1,87 @@
+<%- include('partials/header.ejs') %>
+<%- include('partials/menu.ejs') %>
+
+<body>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-10">
+        <div class="card">
+          <div class="card-header text-center">
+            <h3>Histórico de Entradas e Saídas</h3>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-bordered" id="tabelaHistorico">
+                <thead class="table-light">
+                  <tr class="text-center">
+                    <th>Foto</th>
+                    <th>Nome</th>
+                    <th>Matrícula</th>
+                    <th>Tipo</th>
+                    <th>Tag NFC</th>
+                    <th>Data/Hora</th>
+                  </tr>
+                </thead>
+                <tbody id="historicoBody">
+                  <tr><td colspan="6" class="text-center">Carregando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function atualizarHistorico() {
+      fetch('/esp32/historico-logs')
+        .then(res => res.json())
+        .then(logs => {
+          const tbody = document.getElementById('historicoBody');
+          tbody.innerHTML = '';
+          if (!logs.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Nenhum registro encontrado</td></tr>';
+            return;
+          }
+          logs.forEach(log => {
+            const data = new Date(log.createdAt);
+            const dataFormatada = data.toLocaleString('pt-BR');
+            let tipo = log.tipo;
+            let badgeClass = 'bg-secondary';
+            if (tipo && tipo.toLowerCase().includes('entrada')) {
+              tipo = 'Entrada';
+              badgeClass = 'bg-success';
+            } else if (tipo && tipo.toLowerCase().includes('sa')) {
+              tipo = 'Saída';
+              badgeClass = 'bg-danger';
+            }
+            let foto = '/images/perfil-default.png';
+            if (log.foto) {
+              foto = `/uploads/${log.foto}`;
+            }
+            tbody.innerHTML += `
+              <tr class="text-center">
+                <td><img src="${foto}" alt="Foto" class="rounded-circle" style="width:40px;height:40px;object-fit:cover;"></td>
+                <td>${log.nome_completo || '-'}</td>
+                <td>${log.matricula || '-'}</td>
+                <td><span class="badge ${badgeClass}">${tipo}</span></td>
+                <td>${log.tag_nfc || '-'}</td>
+                <td>${dataFormatada}</td>
+              </tr>
+            `;
+          });
+        })
+        .catch(() => {
+          document.getElementById('historicoBody').innerHTML = '<tr><td colspan="6" class="text-center">Erro ao carregar histórico</td></tr>';
+        });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      atualizarHistorico();
+      setInterval(atualizarHistorico, 3000);
+    });
+  </script>
+
+  <%- include('partials/footer.ejs') %>
+  <%- include('./partials/vlibras.ejs') %>
+</body>

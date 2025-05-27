@@ -1,0 +1,172 @@
+<%- include('partials/header.ejs') %>
+<%- include('partials/menu.ejs') %>
+<%- include('partials/alertModal.ejs') %>
+
+<body>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header text-center">
+            <h2>Cadastro de Funcionário</h2>
+          </div>
+          <div class="card-body">
+            <form id="registerForm" enctype="multipart/form-data">
+              <div class="mb-3">
+                <label for="matricula" class="form-label">Matrícula*</label>
+                <input type="number" class="form-control" id="matricula" name="matricula" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="f_nome" class="form-label">Nome*</label>
+                <input type="text" class="form-control" id="f_nome" name="f_nome" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="f_sobrenome" class="form-label">Sobrenome*</label>
+                <input type="text" class="form-control" id="f_sobrenome" name="f_sobrenome" required>
+              </div>
+
+              <div class="mb-3">
+                <label for="f_senha" class="form-label">Senha*</label>
+                <div class="password-field">
+                  <input type="password" class="form-control" id="f_senha" name="f_senha" required>
+                  <button type="button" class="password-toggle" id="togglePassword">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+                <div class="form-text">
+                  A senha deve conter:
+                  <ul>
+                    <li id="minLength">Mínimo de 8 caracteres</li>
+                    <li id="hasUpperCase">Pelo menos 1 letra maiúscula</li>
+                    <li id="hasSymbol">Pelo menos 1 caractere especial</li>
+                    <li id="passwordMatch">Senhas devem conferir</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="confirmasenha" class="form-label">Confirmar Senha*</label>
+                <div class="password-field">
+                  <input type="password" class="form-control" id="confirmasenha" name="confirmasenha" required>
+                  <button type="button" class="password-toggle" id="toggleConfirmPassword">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="text-center mb-3">
+                  <div class="profile-preview">
+                    <img id="imagePreview" src="/images/perfil-default.png" alt="Preview" class="profile-img rounded-circle border border-2">
+                  </div>
+                </div>
+                <label class="custom-file-upload">
+                  <input type="file" class="d-none" id="file" name="file" accept="image/*">
+                  <i class="bi bi-camera me-2"></i>Escolher Foto
+                </label>
+                <small class="form-text text-muted d-block mt-2">
+                  Formatos aceitos: JPG, PNG. Tamanho máximo: 5MB
+                </small>
+              </div>
+
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Cadastrar</button>
+              </div>
+              <div id="errorMessage" class="text-danger mt-3"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+
+      try {
+        const response = await fetch('/register', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          showAlert('Sucesso', 'Cadastro realizado com sucesso! Você será redirecionado.');
+          setTimeout(() => window.location.href = '/', 2000);
+        } else {
+          showAlert('Erro no Cadastro', data.message || 'Erro ao processar o cadastro');
+        }
+      } catch (error) {
+        handleError(error, 'Erro ao processar o cadastro');
+      }
+    });
+
+    const senha = document.getElementById('f_senha');
+    const confirmarSenha = document.getElementById('confirmasenha');
+    const minLength = document.getElementById('minLength');
+    const hasUpperCase = document.getElementById('hasUpperCase');
+    const hasSymbol = document.getElementById('hasSymbol');
+    const passwordMatch = document.getElementById('passwordMatch');
+
+    function validatePassword() {
+      const val = senha.value;
+      
+      minLength.style.color = val.length >= 8 ? 'green' : 'red';
+      hasUpperCase.style.color = /[A-Z]/.test(val) ? 'green' : 'red';
+      hasSymbol.style.color = /[\W_]/.test(val) ? 'green' : 'red';
+      
+      if (confirmarSenha.value) {
+        passwordMatch.textContent = val === confirmarSenha.value ? 
+          'Senhas conferem' : 'Senhas não conferem';
+        passwordMatch.style.color = val === confirmarSenha.value ? 
+          'green' : 'red';
+      }
+    }
+
+    senha.addEventListener('input', validatePassword);
+    confirmarSenha.addEventListener('input', validatePassword);
+
+    // Lógica para mostrar/ocultar senha
+    const togglePassword = document.getElementById('togglePassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+
+    togglePassword.addEventListener('click', function() {
+      const type = senha.getAttribute('type') === 'password' ? 'text' : 'password';
+      senha.setAttribute('type', type);
+      this.querySelector('i').classList.toggle('bi-eye');
+      this.querySelector('i').classList.toggle('bi-eye-slash');
+    });
+
+    toggleConfirmPassword.addEventListener('click', function() {
+      const type = confirmarSenha.getAttribute('type') === 'password' ? 'text' : 'password';
+      confirmarSenha.setAttribute('type', type);
+      this.querySelector('i').classList.toggle('bi-eye');
+      this.querySelector('i').classList.toggle('bi-eye-slash');
+    });
+
+    // Preview da imagem
+    document.getElementById('file').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        if (file.size > 5 * 1024 * 1024) {
+          showAlert('Arquivo Muito Grande', 'O tamanho máximo permitido é 5MB');
+          this.value = '';
+          return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('imagePreview').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+
+  <%- include('partials/footer.ejs') %>
+</body>

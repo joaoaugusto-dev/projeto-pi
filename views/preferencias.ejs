@@ -1,0 +1,184 @@
+<%- include('partials/header.ejs') %>
+<%- include('partials/menu.ejs') %>
+<%- include('partials/alertModal.ejs') %>
+
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center font-scale">Gerenciar Preferências</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="ambiente-container mb-4">
+                            <h5 class="font-scale mb-3">Ambiente Atual</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-thermometer-half stats-icon" style="color: #EB6A00;"></i>
+                                        <div>
+                                            <small class="stats-label d-block">Temperatura</small>
+                                            <div class="d-flex align-items-baseline">
+                                                <h3 class="main-stats mb-0 me-2"><span id="temp_atual">--</span>°C</h3>
+                                                <small class="text-muted">Umidade: <span id="humid_atual">--</span>%</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-brightness-high stats-icon" style="color: #EB6A00;"></i>
+                                        <div>
+                                            <small class="stats-label d-block">Luminosidade</small>
+                                            <div class="d-flex align-items-baseline">
+                                                <h3 class="main-stats mb-0 me-2"><span id="lumi_atual">--</span> lux</h3>
+                                                <small class="text-muted">Média: <span id="lumi_media">--</span> lux</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form id="preferencesForm">
+                            <div class="mb-4">
+                                <label for="tempRange" class="form-label font-scale">Temperatura Preferida</label>
+                                <input type="range" class="form-range" Cerebro id="tempRange" min="16" max="32" step="0.5" 
+                                       value="<%= funcionario.temp_preferida %>">
+                                <div class="range-value" id="tempValue"><%= funcionario.temp_preferida %>°C</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="lumiRange" class="form-label font-scale">Luminosidade Preferida</label>
+                                <input type="range" class="form-range" id="lumiRange" min="0" max="100" step="25" 
+                                       value="<%= funcionario.lumi_preferida %>">
+                                <div class="range-value" id="lumiValue"><%= funcionario.lumi_preferida %> %</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="font-scale mb-3">Tag NFC</h5>
+                                        <% if (funcionario.tag_nfc) { %>
+                                            <p class="text-muted font-scale mb-3">
+                                                Tag NFC cadastrada: <strong><%= funcionario.tag_nfc %></strong>
+                                            </p>
+                                            <small class="text-muted">
+                                                Se precisar alterar, entre em contato com um administrador.
+                                            </small>
+                                        <% } else { %>
+                                            <p class="text-muted font-scale mb-3">
+                                                Você ainda não possui uma tag NFC cadastrada! Para cadastrar, entre em contato com um administrador.
+                                            </p>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn" style="background-color: #EB6A00; color: white;">Salvar Preferências</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/footer.ejs') %>
+    <%- include('./partials/vlibras.ejs') %>
+
+    <script>
+        const tempRange = document.getElementById('tempRange');
+        const lumiRange = document.getElementById('lumiRange');
+        const tempValue = document.getElementById('tempValue');
+        const lumiValue = document.getElementById('lumiValue');
+
+        tempRange.addEventListener('input', function() {
+            tempValue.textContent = this.value + '°C';
+        });
+
+        lumiRange.addEventListener('input', function() {
+            lumiValue.textContent = this.value + ' %';
+        });
+
+        document.getElementById('preferencesForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            try {
+                const temp = parseFloat(document.getElementById('tempRange').value);
+                const lumi = parseInt(document.getElementById('lumiRange').value);
+                
+                if (isNaN(temp) || isNaN(lumi)) {
+                    showAlert('Valores Inválidos', 'Por favor, verifique os valores informados');
+                    return;
+                }
+
+                const response = await fetch('/preferencias/atualizar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        temp_preferida: temp,
+                        lumi_preferida: lumi
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Erro ao salvar preferências');
+                }
+
+                if (data.success) {
+                    // Mostrar alerta de sucesso
+                    showAlert('Sucesso', 'Preferências atualizadas com sucesso!');
+                    
+                    // Forçar atualização no ESP32 em segundo plano (sem bloquear UI)
+                    fetch('/esp32/ambiente', { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ forceUpdate: true })
+                    }).catch(err => console.error('Erro ao forçar atualização:', err));
+                    
+                    // Redirecionar após breve intervalo
+                    setTimeout(() => window.location.href = '/dados', 1500);
+                } else {
+                    throw new Error(data.message || 'Erro ao salvar preferências');
+                }
+            } catch (error) {
+                handleError(error, 'Erro ao salvar preferências. Tente novamente.');
+            }
+        });
+
+        function atualizarDadosAmbiente() {
+            fetch('/esp32/ambiente')
+                .then(response => response.json())
+                .then(data => {
+                    const tempSpan = document.getElementById('temp_atual');
+                    const humidSpan = document.getElementById('humid_atual');
+                    const lumiSpan = document.getElementById('lumi_atual');
+                    const lumiMediaSpan = document.getElementById('lumi_media');
+                    
+                    if (tempSpan) {
+                        tempSpan.textContent = data.atualizado ? data.temperatura : '--';
+                        tempSpan.style.color = data.atualizado ? 'inherit' : '#999';
+                    }
+                    if (humidSpan) {
+                        humidSpan.textContent = data.atualizado ? data.humidade : '--';
+                        humidSpan.style.color = data.atualizado ? 'inherit' : '#999';
+                    }
+                    if (lumiSpan) lumiSpan.textContent = data.luminosidade || '--';
+                    if (lumiMediaSpan) lumiMediaSpan.textContent = data.luminosidade_media || '--';
+                })
+                .catch(error => {
+                    handleError(error, 'Erro ao atualizar dados do ambiente');
+                });
+        }
+
+        atualizarDadosAmbiente();
+        setInterval(atualizarDadosAmbiente, 30000);
+    </script>
+</body>

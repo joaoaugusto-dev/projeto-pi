@@ -1,0 +1,23 @@
+<%- include('partials/header.ejs') %>
+    <%- include('partials/menu.ejs') %>
+        <%- include('partials/alertModal.ejs') %>
+
+            <div class="container py-5">
+                <div class="row align-items-center justify-content-between">
+                    <div class="col-md-6 mb-4 mb-md-0">
+                        <h1 class="display-4 fw-bold mb-4 text">Sistema de Automação Inteligente</h1>
+                        <p class="lead mb-4">Controle automático de iluminação e temperatura personalizado para cada
+                            usuário.</p>
+                        <div class="d-flex gap-3">
+                            <a href="/entrar" class="btn btn-outline-primary btn-lg">Entrar</a>
+                            <a href="/cadastro" class="btn btn-primary btn-lg">Cadastrar</a>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <img src="../images/Empilhadeira.png" class="img-fluid rounded-custom shadow-custom">
+                    </div>
+                </div>
+            </div>
+
+            <%- include('partials/footer.ejs') %>
+                <%- include('./partials/vlibras.ejs') %>
