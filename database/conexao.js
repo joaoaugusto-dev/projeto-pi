@@ -1,3 +1,13 @@
+/* const sequelize = require('sequelize');
+
+const conn = new sequelize('projetoiot', 'root', '', {
+    host: 'localhost',
+    dialect: 'mysql',
+    //port: '3307'
+});
+
+module.exports = conn; */
+
 const { Sequelize } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
