@@ -123,7 +123,7 @@ const unsigned long INTERVALO_PREF_CHECK = 30000; // 30s para verificar preferê
 unsigned long tempos[8] = {0}; // Array único para todos os timestamps
 
 // Adicione esta constante para o limiar do LDR
-#define LIMIAR_LDR_ESCURIDAO 200 // Valor LDR abaixo do qual é considerado "muito escuro" para ligar as luzes
+#define LIMIAR_LDR_ESCURIDAO  // Valor LDR abaixo do qual é considerado "muito escuro" para ligar as luzes
 
 // === CONFIGURAÇÃO DE REDE ===
 const char* ssid = "João Augusto";
@@ -229,7 +229,7 @@ void tocarSom(SomBuzzer tipo) {
   for (int r = 0; r < repeticoes; r++) {
     int freqAtual = freq;
     if (tipo == SOM_INICIAR) {
-      freqAtual += r * 200;
+      freqAtual += r * ;
     }
     
     if (freqAtual > 0) {

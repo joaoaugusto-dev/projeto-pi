@@ -206,12 +206,12 @@
                       <div class="card shadow-sm mb-4">
                         <div class="card-body p-0">
                           <div class="table-responsive">
-                            <table class="table table-hover table-striped table-bordered mb-0">
+                            <table class="table table-hover table-striped table-bordered mb-0" style="table-layout: fixed; width: 100%;">
                               <thead class="table-light">
                                 <tr class="text-center">
-                                  <th class="fw-bold text-wrap">Nome</th>
-                                  <th class="fw-bold text-wrap">Temperatura Preferida</th>
-                                  <th class="fw-bold text-wrap">Iluminação Preferida</th>
+                                  <th class="fw-bold" style="width: 40%;">Nome</th>
+                                  <th class="fw-bold" style="width: 30%;">Temp. Pref.</th>
+                                  <th class="fw-bold" style="width: 30%;">Ilum. Pref.</th>
                                 </tr>
                               </thead>
                               <tbody id="tabela_presentes" class="align-middle text-center">
@@ -261,7 +261,7 @@
                       <h6 class="fw-bold mb-3">Controle Manual Total (Protegido)</h6>
                       <div id="loginManual">
                         <label class="form-label" for="senhaManual">Digite a senha</label>
-                        <input type="password" id="senhaManual" class="form-control" placeholder="Senha">
+                        <input type="password" id="senhaManual" class="form-control" placeholder="Senha" onkeypress="if(event.key === 'Enter') verificarSenhaManual()">
                         <button class="btn btn-primary w-100 mt-2" onclick="verificarSenhaManual()">Acessar</button>
                         <p id="erroManual" class="text-danger mt-2"></p>
                       </div>
@@ -480,13 +480,16 @@
                       })
                       .then(data => {
                         if (data) {
-                          document.getElementById('temp_atual').textContent = data.atualizado && data.temperatura !== null ? data.temperatura : '--';
-                          document.getElementById('lumi_atual').textContent = data.atualizado && data.luminosidade !== null ? data.luminosidade : '--';
-                          document.getElementById('humidade_atual').textContent = data.atualizado && data.humidade !== null ? data.humidade : '--';
-                          document.getElementById('pessoas_presentes').textContent = data.atualizado ? data.pessoas : '--';
-                          document.getElementById('temp_preferida_media').textContent = data.tempPreferidaMedia !== null ? data.tempPreferidaMedia : '--';
-                          document.getElementById('lumi_preferida_media').textContent = data.lumiPreferidaMedia !== null ? data.lumiPreferidaMedia : '--';
-                          document.getElementById('lumi_nivel_utilizado').textContent = data.lumiNivelUtilizado !== null ? data.lumiNivelUtilizado : '--';
+                          // Função auxiliar para garantir que null/undefined vire '--'
+                          const safeValue = (value) => (value !== null && value !== undefined) ? value : '--';
+                          
+                          document.getElementById('temp_atual').textContent = data.atualizado && data.temperatura !== null && data.temperatura !== undefined ? data.temperatura : '--';
+                          document.getElementById('lumi_atual').textContent = data.atualizado && data.luminosidade !== null && data.luminosidade !== undefined ? data.luminosidade : '--';
+                          document.getElementById('humidade_atual').textContent = data.atualizado && data.humidade !== null && data.humidade !== undefined ? data.humidade : '--';
+                          document.getElementById('pessoas_presentes').textContent = data.atualizado ? (data.pessoas || 0) : '--';
+                          document.getElementById('temp_preferida_media').textContent = safeValue(data.tempPreferidaMedia);
+                          document.getElementById('lumi_preferida_media').textContent = safeValue(data.lumiPreferidaMedia);
+                          document.getElementById('lumi_nivel_utilizado').textContent = safeValue(data.lumiNivelUtilizado);
 
                           // Atualizar status das luzes
                           const modoBadge = document.getElementById('iluminacao_modo');
@@ -605,11 +608,19 @@
                           if (data.presentes && data.presentes.length > 0) {
                             data.presentes.forEach(p => {
                               const tr = document.createElement('tr');
-                              tr.innerHTML = `
-                                <td>${p.nome}</td>
-                                <td>${p.temp_preferida}°C</td>
-                                <td>${p.lumi_preferida}%</td>
-                              `;
+                              if (p.nome === 'TAG DESCONHECIDA') {
+                                tr.innerHTML = `
+                                  <td><span class="tag-desconhecida-texto">TAG DESCONHECIDA</span></td>
+                                  <td class="text-muted">--</td>
+                                  <td class="text-muted">--</td>
+                                `;
+                              } else {
+                                tr.innerHTML = `
+                                  <td class="text-truncate" title="${p.nome}">${p.nome}</td>
+                                  <td>${p.temp_preferida}°C</td>
+                                  <td>${p.lumi_preferida}%</td>
+                                `;
+                              }
                               tbody.appendChild(tr);
                             });
                           } else {
@@ -686,6 +697,12 @@
                     })
                     .then(data => {
                         if (data.success) {
+                            // Deslogar do modo manual (esconder controles e mostrar campo de senha)
+                            document.getElementById('controlesManuais').classList.add('hidden');
+                            document.getElementById('loginManual').classList.remove('hidden');
+                            document.getElementById('senhaManual').value = ''; // Limpa o campo de senha
+                            document.getElementById('erroManual').textContent = '';
+                            
                             mostrarModal('Sucesso', 'Modo automático restaurado para iluminação e climatizador.');
                             atualizarDadosAmbiente(); // Atualiza para refletir o estado
                         } else {
@@ -895,6 +912,32 @@
                   /* Estilo para ocultar qualquer backdrop persistente */
                   .modal-backdrop.show {
                     z-index: 1040;
+                  }
+
+                  /* Garantir que a tabela não cause overflow horizontal */
+                  .table-responsive {
+                    overflow-x: hidden !important;
+                  }
+
+                  /* Quebrar texto longo em células */
+                  .table td {
+                    word-wrap: break-word;
+                    word-break: break-word;
+                    white-space: normal;
+                    max-width: 0;
+                    font-size: 0.85em; /* Usa em (relativo) em vez de rem (fixo) */
+                  }
+
+                  /* Cabeçalhos da tabela também menores */
+                  .table th {
+                    font-size: 0.85em; /* Usa em (relativo) em vez de rem (fixo) */
+                  }
+
+                  /* Estilo específico para nomes longos */
+                  .nome-cell {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
                   }
                 </style>
     </body>

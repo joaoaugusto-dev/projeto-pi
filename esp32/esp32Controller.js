@@ -133,22 +133,42 @@ router.post('/preferencias', async (req, res) => {
     return res.status(400).json({ error: 'Tags inválidas', luminosidade: 50, temperatura: 25.0 });
   }
   try {
+    // Buscar apenas funcionários que têm tags conhecidas
     const funcionarios = await Funcionario.findAll({ where: { tag_nfc: tags } });
-    let tempMedia = 25.0; // Padrão se não houver funcionários ou tags inválidas
-    let lumiMedia = 50; // Padrão se não houver funcionários ou tags inválidas
     
+    // Separar tags conhecidas e desconhecidas
+    const tagsConhecidas = funcionarios.map(f => f.tag_nfc);
+    const tagsDesconhecidas = tags.filter(tag => !tagsConhecidas.includes(tag));
+    
+    let tempMedia = 25.0; // Padrão se não houver funcionários cadastrados
+    let lumiMedia = 50; // Padrão se não houver funcionários cadastrados
+    
+    // IMPORTANTE: Só calcular médias se houver pelo menos 1 funcionário cadastrado
     if (funcionarios.length > 0) {
       const somaTemp = funcionarios.reduce((s, f) => s + (f.temp_preferida || 25.0), 0);
-      const somaLumi = funcionarios.reduce((s, f) => s + (f.lumi_preferida || 50), 0); // Default 50 para luminosidade
+      const somaLumi = funcionarios.reduce((s, f) => s + (f.lumi_preferida || 50), 0);
       
       tempMedia = parseFloat((somaTemp / funcionarios.length).toFixed(1));
       lumiMedia = nivelValido(somaLumi / funcionarios.length);
+      
+      console.log(`✓ Preferências calculadas APENAS para ${funcionarios.length} funcionários CADASTRADOS (de ${tags.length} tags totais)`);
+      console.log(`  -> Temperatura média: ${tempMedia}°C`);
+      console.log(`  -> Luminosidade média: ${lumiMedia}%`);
+      console.log(`  -> Tags cadastradas: ${tagsConhecidas.join(', ')}`);
+    } else {
+      console.log(`⚠ NENHUM funcionário cadastrado encontrado. Usando valores padrão.`);
+      console.log(`  -> Temperatura padrão: ${tempMedia}°C`);
+      console.log(`  -> Luminosidade padrão: ${lumiMedia}%`);
     }
-    console.log(`Preferências calculadas para tags: ${tags.join(', ')} -> Temp: ${tempMedia}°C, Lumi: ${lumiMedia}%`);
+    
+    if (tagsDesconhecidas.length > 0) {
+      console.log(`❌ Tags DESCONHECIDAS IGNORADAS no cálculo: ${tagsDesconhecidas.join(', ')}`);
+    }
+    
     return res.json({ temperatura: tempMedia, luminosidade: lumiMedia });
   } catch (err) {
     console.error('Erro em /preferencias:', err);
-    return res.status(500).json({ error: err.message, luminosidade: 50, temperatura: 25.0 }); // Retorna padrão em caso de erro
+    return res.status(500).json({ error: err.message, luminosidade: 50, temperatura: 25.0 });
   }
 });
 
@@ -231,6 +251,16 @@ router.post('/ambiente', async (req, res) => {
             tag_nfc: tag
           });
           console.log(`Entrada registrada: ${funcionario.nome} ${funcionario.sobrenome} (${funcionario.matricula})`);
+        } else {
+          // Registrar entrada de tag desconhecida
+          await Logs.create({
+            funcionario_id: null,
+            matricula: null,
+            nome_completo: 'TAG DESCONHECIDA',
+            tipo: 'entrada',
+            tag_nfc: tag
+          });
+          console.log(`Entrada registrada: TAG DESCONHECIDA (${tag})`);
         }
       } catch (err) {
         console.error('Erro ao registrar entrada:', err);
@@ -250,6 +280,16 @@ router.post('/ambiente', async (req, res) => {
             tag_nfc: tag
           });
           console.log(`Saída registrada: ${funcionario.nome} ${funcionario.sobrenome} (${funcionario.matricula})`);
+        } else {
+          // Registrar saída de tag desconhecida
+          await Logs.create({
+            funcionario_id: null,
+            matricula: null,
+            nome_completo: 'TAG DESCONHECIDA',
+            tipo: 'saida',
+            tag_nfc: tag
+          });
+          console.log(`Saída registrada: TAG DESCONHECIDA (${tag})`);
         }
       } catch (err) {
         console.error('Erro ao registrar saída:', err);
@@ -306,14 +346,49 @@ router.get('/ambiente', async (req, res) => {
   if (atualizado && ultimaLeitura.tags && ultimaLeitura.tags.length) {
     try {
       const funcs = await Funcionario.findAll({ where: { tag_nfc: ultimaLeitura.tags } });
-      presentes = funcs.map(f => ({ nome: `${f.nome} ${f.sobrenome}`, temp_preferida: f.temp_preferida, lumi_preferida: f.lumi_preferida }));
-      if (funcs.length) {
+      
+      // Separar tags conhecidas e desconhecidas
+      const tagsConhecidas = funcs.map(f => f.tag_nfc);
+      const tagsDesconhecidas = ultimaLeitura.tags.filter(tag => !tagsConhecidas.includes(tag));
+      
+      // Adicionar funcionários conhecidos
+      presentes = funcs.map(f => ({ 
+        nome: `${f.nome} ${f.sobrenome}`, 
+        temp_preferida: f.temp_preferida, 
+        lumi_preferida: f.lumi_preferida 
+      }));
+      
+      // Adicionar tags desconhecidas (SEM valores de preferência)
+      tagsDesconhecidas.forEach(tag => {
+        presentes.push({
+          nome: 'TAG DESCONHECIDA',
+          temp_preferida: null,
+          lumi_preferida: null,
+          tag_desconhecida: tag
+        });
+      });
+      
+      // *** MUDANÇA CRÍTICA: Calcular médias APENAS com funcionários conhecidos ***
+      if (funcs.length > 0) {
         const sumTp = funcs.reduce((s, f) => s + (f.temp_preferida || 25.0), 0);
-        const sumLp = funcs.reduce((s, f) => s + (f.lumi_preferida || 50), 0); // Default 50 para luminosidade
+        const sumLp = funcs.reduce((s, f) => s + (f.lumi_preferida || 50), 0);
         tempPrefMed = parseFloat((sumTp / funcs.length).toFixed(1));
         const lumiRealMedia = sumLp / funcs.length;
         lumiPrefMed = parseFloat(lumiRealMedia.toFixed(1)); // mostra a média real com 1 casa decimal
         lumiUtilizada = nivelValido(lumiRealMedia); // snapping só aqui, para uso real
+        
+        console.log(`✓ Médias calculadas com ${funcs.length} funcionários cadastrados:`);
+        console.log(`  -> Temp: ${tempPrefMed}°C, Lumi: ${lumiPrefMed}% (utilizada: ${lumiUtilizada}%)`);
+      } else {
+        // Se não há funcionários cadastrados, usar valores padrão
+        tempPrefMed = 25.0;
+        lumiPrefMed = 50.0;
+        lumiUtilizada = 50;
+        console.log(`⚠ Nenhum funcionário cadastrado. Usando valores padrão: Temp: ${tempPrefMed}°C, Lumi: ${lumiPrefMed}%`);
+      }
+      
+      if (tagsDesconhecidas.length > 0) {
+        console.log(`❌ Tags desconhecidas IGNORADAS no cálculo: ${tagsDesconhecidas.join(', ')}`);
       }
     } catch (err) {
       console.error('Erro ao calcular presentes:', err);
@@ -332,9 +407,9 @@ router.get('/ambiente', async (req, res) => {
   } : {};
 
   return res.json({
-    temperatura: atualizado ? ultimaLeitura.temperatura : null,
-    humidade: atualizado ? ultimaLeitura.humidade : null,
-    luminosidade: atualizado ? ultimaLeitura.luminosidade : null,
+    temperatura: atualizado && ultimaLeitura.temperatura !== null ? ultimaLeitura.temperatura : null,
+    humidade: atualizado && ultimaLeitura.humidade !== null ? ultimaLeitura.humidade : null,
+    luminosidade: atualizado && ultimaLeitura.luminosidade !== null ? ultimaLeitura.luminosidade : null,
     pessoas: atualizado ? ultimaLeitura.pessoas : 0,
     tempMediaHistorica: tempHist,
     lumiMediaHistorica: lumiHist,

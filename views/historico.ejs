@@ -1,11 +1,32 @@
 <%- include('partials/header.ejs') %>
 <%- include('partials/menu.ejs') %>
 
+<style>
+  .tag-desconhecida {
+    background: linear-gradient(45deg, #ffc107, #ff8c00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(255, 193, 7, 0.3);
+  }
+  
+  .foto-desconhecida {
+    background: linear-gradient(45deg, #6c757d, #495057);
+    border: 2px solid #ffc107;
+  }
+  
+  .historico-card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+  }
+</style>
+
 <body>
   <div class="container mt-5">
     <div class="row justify-content-center">
       <div class="col-md-10">
-        <div class="card">
+        <div class="card historico-card">
           <div class="card-header text-center">
             <h3>Histórico de Entradas e Saídas</h3>
           </div>
@@ -44,6 +65,7 @@
             tbody.innerHTML = '<tr><td colspan="6" class="text-center">Nenhum registro encontrado</td></tr>';
             return;
           }
+
           logs.forEach(log => {
             const data = new Date(log.createdAt);
             const dataFormatada = data.toLocaleString('pt-BR');
@@ -56,17 +78,31 @@
               tipo = 'Saída';
               badgeClass = 'bg-danger';
             }
+            
             let foto = '/images/perfil-default.png';
-            if (log.foto) {
+            let nome = log.nome_completo || '-';
+            let matricula = log.matricula || '-';
+            let tagNfc = log.tag_nfc || '-';
+            
+            // Tratamento especial para tags desconhecidas
+            if (log.nome_completo === 'TAG DESCONHECIDA') {
+              nome = '<span class="tag-desconhecida">TAG DESCONHECIDA</span>';
+              matricula = '<span class="text-muted">--</span>';
+              foto = '/images/perfil-default.png'; // Usar a imagem padrão com estilo especial
+            } else if (log.foto) {
               foto = `/uploads/${log.foto}`;
             }
+            
+            // Aplicar classe especial para fotos de tags desconhecidas
+            const fotoClass = log.nome_completo === 'TAG DESCONHECIDA' ? 'rounded-circle foto-desconhecida' : 'rounded-circle';
+            
             tbody.innerHTML += `
               <tr class="text-center">
-                <td><img src="${foto}" alt="Foto" class="rounded-circle" style="width:40px;height:40px;object-fit:cover;"></td>
-                <td>${log.nome_completo || '-'}</td>
-                <td>${log.matricula || '-'}</td>
+                <td><img src="${foto}" alt="Foto" class="${fotoClass}" style="width:40px;height:40px;object-fit:cover;" onerror="this.src='/images/perfil-default.png'"></td>
+                <td>${nome}</td>
+                <td>${matricula}</td>
                 <td><span class="badge ${badgeClass}">${tipo}</span></td>
-                <td>${log.tag_nfc || '-'}</td>
+                <td>${tagNfc}</td>
                 <td>${dataFormatada}</td>
               </tr>
             `;
@@ -76,6 +112,7 @@
           document.getElementById('historicoBody').innerHTML = '<tr><td colspan="6" class="text-center">Erro ao carregar histórico</td></tr>';
         });
     }
+
     document.addEventListener('DOMContentLoaded', () => {
       atualizarHistorico();
       setInterval(atualizarHistorico, 3000);

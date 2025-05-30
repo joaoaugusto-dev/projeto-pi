@@ -1403,3 +1403,22 @@ footer a.text-muted:hover {
 [data-theme="high-contrast"] .text-muted {
   color: var(--white) !important; /* Texto "Nenhum" branco */
 }
+
+/* Estilos específicos para TAG DESCONHECIDA */
+.tag-desconhecida-texto {
+  color: #000000 !important; /* Sempre preto em todos os temas */
+  font-weight: bold !important;
+}
+
+/* Garantir que text-muted seja visível em todos os temas */
+.text-muted {
+  color: #6c757d !important; /* Cor padrão no modo claro */
+}
+
+[data-theme="dark"] .text-muted {
+  color: #adb5bd !important; /* Cinza mais claro no tema escuro para melhor visibilidade */
+}
+
+[data-theme="high-contrast"] .text-muted {
+  color: #ffffff !important; /* Texto branco no alto contraste */
+}
