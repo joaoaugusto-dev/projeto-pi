@@ -145,15 +145,31 @@ router.post('/preferencias', async (req, res) => {
     
     // IMPORTANTE: Só calcular médias se houver pelo menos 1 funcionário cadastrado
     if (funcionarios.length > 0) {
-      const somaTemp = funcionarios.reduce((s, f) => s + (f.temp_preferida || 25.0), 0);
-      const somaLumi = funcionarios.reduce((s, f) => s + (f.lumi_preferida || 50), 0);
+      // Filtrar funcionários com preferências válidas para temperatura (entre 16°C e 32°C)
+      const funcionariosTemp = funcionarios.filter(f => 
+        f.temp_preferida && f.temp_preferida >= 16 && f.temp_preferida <= 32
+      );
       
-      tempMedia = parseFloat((somaTemp / funcionarios.length).toFixed(1));
-      lumiMedia = nivelValido(somaLumi / funcionarios.length);
+      // Filtrar funcionários com preferências válidas para luminosidade (0% a 100%)
+      const funcionariosLumi = funcionarios.filter(f => 
+        f.lumi_preferida !== null && f.lumi_preferida !== undefined && f.lumi_preferida >= 0 && f.lumi_preferida <= 100
+      );
       
-      console.log(`✓ Preferências calculadas APENAS para ${funcionarios.length} funcionários CADASTRADOS (de ${tags.length} tags totais)`);
-      console.log(`  -> Temperatura média: ${tempMedia}°C`);
-      console.log(`  -> Luminosidade média: ${lumiMedia}%`);
+      // Calcular média de temperatura apenas com valores válidos
+      if (funcionariosTemp.length > 0) {
+        const somaTemp = funcionariosTemp.reduce((s, f) => s + f.temp_preferida, 0);
+        tempMedia = parseFloat((somaTemp / funcionariosTemp.length).toFixed(1));
+      }
+      
+      // Calcular média de luminosidade apenas com valores válidos
+      if (funcionariosLumi.length > 0) {
+        const somaLumi = funcionariosLumi.reduce((s, f) => s + f.lumi_preferida, 0);
+        lumiMedia = nivelValido(somaLumi / funcionariosLumi.length);
+      }
+      
+      console.log(`✓ Preferências calculadas para ${funcionarios.length} funcionários CADASTRADOS (de ${tags.length} tags totais)`);
+      console.log(`  -> Temperatura: ${funcionariosTemp.length} valores válidos, média: ${tempMedia}°C`);
+      console.log(`  -> Luminosidade: ${funcionariosLumi.length} valores válidos, média: ${lumiMedia}%`);
       console.log(`  -> Tags cadastradas: ${tagsConhecidas.join(', ')}`);
     } else {
       console.log(`⚠ NENHUM funcionário cadastrado encontrado. Usando valores padrão.`);
@@ -368,17 +384,39 @@ router.get('/ambiente', async (req, res) => {
         });
       });
       
-      // *** MUDANÇA CRÍTICA: Calcular médias APENAS com funcionários conhecidos ***
+      // *** MUDANÇA CRÍTICA: Calcular médias APENAS com funcionários conhecidos e com valores válidos ***
       if (funcs.length > 0) {
-        const sumTp = funcs.reduce((s, f) => s + (f.temp_preferida || 25.0), 0);
-        const sumLp = funcs.reduce((s, f) => s + (f.lumi_preferida || 50), 0);
-        tempPrefMed = parseFloat((sumTp / funcs.length).toFixed(1));
-        const lumiRealMedia = sumLp / funcs.length;
-        lumiPrefMed = parseFloat(lumiRealMedia.toFixed(1)); // mostra a média real com 1 casa decimal
-        lumiUtilizada = nivelValido(lumiRealMedia); // snapping só aqui, para uso real
+        // Filtrar funcionários com preferências válidas para temperatura (entre 16°C e 32°C)
+        const funcsValidosTemp = funcs.filter(f => 
+          f.temp_preferida && f.temp_preferida >= 16 && f.temp_preferida <= 32
+        );
+        
+        // Filtrar funcionários com preferências válidas para luminosidade (0% a 100%)
+        const funcsValidosLumi = funcs.filter(f => 
+          f.lumi_preferida !== null && f.lumi_preferida !== undefined && f.lumi_preferida >= 0 && f.lumi_preferida <= 100
+        );
+        
+        // Calcular médias apenas com valores válidos
+        if (funcsValidosTemp.length > 0) {
+          const sumTp = funcsValidosTemp.reduce((s, f) => s + f.temp_preferida, 0);
+          tempPrefMed = parseFloat((sumTp / funcsValidosTemp.length).toFixed(1));
+        } else {
+          tempPrefMed = 25.0; // Padrão se não houver valores válidos
+        }
+        
+        if (funcsValidosLumi.length > 0) {
+          const sumLp = funcsValidosLumi.reduce((s, f) => s + f.lumi_preferida, 0);
+          const lumiRealMedia = sumLp / funcsValidosLumi.length;
+          lumiPrefMed = parseFloat(lumiRealMedia.toFixed(1)); // mostra a média real com 1 casa decimal
+          lumiUtilizada = nivelValido(lumiRealMedia); // snapping só aqui, para uso real
+        } else {
+          lumiPrefMed = 50.0; // Padrão se não houver valores válidos
+          lumiUtilizada = 50;
+        }
         
         console.log(`✓ Médias calculadas com ${funcs.length} funcionários cadastrados:`);
-        console.log(`  -> Temp: ${tempPrefMed}°C, Lumi: ${lumiPrefMed}% (utilizada: ${lumiUtilizada}%)`);
+        console.log(`  -> Temp: ${funcsValidosTemp.length} valores válidos, média: ${tempPrefMed}°C`);
+        console.log(`  -> Lumi: ${funcsValidosLumi.length} valores válidos, média: ${lumiPrefMed}% (utilizada: ${lumiUtilizada}%)`);
       } else {
         // Se não há funcionários cadastrados, usar valores padrão
         tempPrefMed = 25.0;
