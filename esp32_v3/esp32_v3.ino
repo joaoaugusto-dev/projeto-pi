@@ -142,8 +142,8 @@ unsigned long tempos[8] = { 0 }; // Cada índice corresponde a uma tarefa (0=DHT
 #define LIMIAR_LDR_ESCURIDAO 400
 
 // === CONFIGURAÇÃO DE REDE ===
-const char* ssid = "João Augusto"; // Nome da rede Wi-Fi.
-const char* password = "131103r7"; // Senha da rede Wi-Fi.
+const char* ssid = "esp32"; // Nome da rede Wi-Fi.
+const char* password = "123654123"; // Senha da rede Wi-Fi.
 const char* serverUrl = "http://192.168.31.43:3000/esp32/"; // Endereço base do servidor.
 
 // === CARACTERES PERSONALIZADOS PARA LCD ===
@@ -340,7 +340,6 @@ void atualizarLCD() {
     lcd.backlight();
   } else {
     // Se não tem ninguém, mostra "Sistema Inativo" e apaga a luz de fundo.
-    lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Sistema Inativo");
     lcd.setCursor(0, 1);
@@ -423,26 +422,11 @@ void atualizarLCD() {
   }
 }
 
-// Versão especial que força atualização do LCD (reseta o hash)
-void forcarAtualizacaoLCD() {
-  static uint32_t* hashAnterior = nullptr;
-  if (hashAnterior == nullptr) {
-    // Hack para acessar a variável static de atualizarLCD()
-    // Força uma nova atualização resetando o timer
-    static unsigned long* ultimaAtualizacao = nullptr;
-    // Como não podemos acessar diretamente as statics, vamos limpar a tela e chamar atualizarLCD
-    lcd.clear();
-    delay(50);  // Pequeno delay para garantir que a tela foi limpa
-  }
-  atualizarLCD();
-}
-
 // Mostra uma tela temporária no LCD com o estado atual do climatizador.
 // Usado quando um comando IR é enviado ou recebido.
 void atualizarTelaClimatizador() {
   static uint8_t estadoAnterior = 0; // Guarda o estado da tela anterior para saber se precisa atualizar.
   static unsigned long tempoExibicao = 0; // Controla por quanto tempo a tela fica visível.
-  static bool telaClimaAtiva = false; // Flag para controlar se a tela do clima está sendo exibida.
 
   // Cria um "byte de estado" para comparar facilmente se algo mudou no climatizador.
   uint8_t estadoAtual = (clima.ligado << 0) | 
@@ -454,7 +438,6 @@ void atualizarTelaClimatizador() {
   if (estadoAtual != estadoAnterior) { // Só atualiza se o estado do clima mudou.
     estadoAnterior = estadoAtual;
     tempoExibicao = millis(); // Marca quando a tela começou a ser exibida.
-    telaClimaAtiva = true; // Marca que a tela do clima está ativa.
     
     lcd.clear();
     lcd.setCursor(0, 0);
@@ -494,15 +477,11 @@ void atualizarTelaClimatizador() {
       buffer[pos] = '\0'; // Finaliza a string.
       lcd.print(buffer); // Mostra no LCD.
     }
-    debugPrint("Tela do climatizador atualizada: " + String(buffer));
   }
   
-  // Verifica se deve voltar para a tela principal
-  if (telaClimaAtiva && (millis() - tempoExibicao > 1500)) {
-    telaClimaAtiva = false; // Desativa a tela do clima
-    debugPrint("Timeout da tela do climatizador - voltando para tela principal");
-    // Força atualização da tela principal
-    atualizarLCD(); 
+  // Volta para a tela principal automaticamente após 1.5 segundos, sem bloquear o código.
+  if (millis() - tempoExibicao > 1500) {
+    atualizarLCD(); // Chama a função que desenha a tela principal.
   }
 }
 
@@ -1808,6 +1787,7 @@ void loop() {
   static unsigned long ultimoCicloRapido = 0;      // Para tarefas que rodam a cada ~100ms.
   static unsigned long ultimoCicloComunicacao = 0; // Para tarefas que rodam a cada ~1s.
   unsigned long agora = millis();                  // Tempo atual.
+
   // CICLO RÁPIDO (a cada ~100ms): Sensores e controle automático local.
   if (agora - ultimoCicloRapido > 100) {
     ultimoCicloRapido = agora;
@@ -1815,7 +1795,6 @@ void loop() {
     lerSensores();             // Lê temperatura, umidade, LDR.
     gerenciarIluminacao();     // Controla as luzes automaticamente.
     controleAutomaticoClima(); // Controla o climatizador automaticamente.
-    atualizarTelaClimatizador(); // Verifica se precisa voltar da tela do climatizador
   }
 
   // CICLO DE COMUNICAÇÃO (a cada ~1000ms): Wi-Fi, servidor, debug.
