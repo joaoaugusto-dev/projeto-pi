@@ -51,19 +51,6 @@ O objetivo do sistema é **otimizar o consumo de energia elétrica** em ambiente
 
 ---
 
-## 📂 Estrutura do Projeto
-
-```
-projeto-pi/
-├── backend/         # API e lógica de controle
-├── frontend/        # Interface web (IHM)
-├── esp32/           # Código para o microcontrolador
-├── docs/            # Documentação e diagramas
-└── README.md        # Este arquivo
-```
-
----
-
 ## 👨‍💻 Equipe & Agradecimentos
 
 Projeto desenvolvido como parte do **Projeto Integrado - ADS UNIFEOB**.
@@ -73,7 +60,7 @@ Apoio essencial da **Pack Bag**, que forneceu contexto industrial e suporte dura
 
 ## 🔗 Links Importantes
 
-* 📽️ **Apresentação oficial (vídeo)**: [Clique aqui](https://lnkd.in/eqsAqZrA)
+* ✅ **Projeto completo (LinkedIn)**: [Clique aqui](https://lnkd.in/eqsAqZrA)
 
 ---
 
