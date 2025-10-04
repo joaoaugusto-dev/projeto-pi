@@ -144,7 +144,7 @@ unsigned long tempos[8] = { 0 }; // Cada índice corresponde a uma tarefa (0=DHT
 // === CONFIGURAÇÃO DE REDE ===
 const char* ssid = "esp32"; // Nome da rede Wi-Fi.
 const char* password = "123654123"; // Senha da rede Wi-Fi.
-const char* serverUrl = "http://192.168.31.43:3000/esp32/"; // Endereço base do servidor.
+const char* serverUrl = "http://192.168.137.1:3000/esp32/"; // Endereço base do servidor.
 
 // === CARACTERES PERSONALIZADOS PARA LCD ===
 // Define desenhos customizados para ícones no LCD. Cada array de 8 bytes forma um caractere 5x8 pixels.
