@@ -91,6 +91,6 @@ app.use('/', routes);
 app.use('/', logsController); // Adicionando o controlador de logs
 
 // Start do servidor
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Servidor rodando na porta ${process.env.PORT}`);
 });
